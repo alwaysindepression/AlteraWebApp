@@ -1,0 +1,34 @@
+:root {
+  color-scheme: light dark;
+  --bg: var(--tg-theme-bg-color, #101418);
+  --card: var(--tg-theme-secondary-bg-color, #1d252c);
+  --text: var(--tg-theme-text-color, #f5f7fa);
+  --muted: var(--tg-theme-hint-color, #9ca7b2);
+  --accent: var(--tg-theme-button-color, #2ea6ff);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.4 system-ui, sans-serif; }
+.app { max-width: 720px; margin: 0 auto; padding: 20px 16px 32px; }
+header { display: flex; justify-content: space-between; align-items: center; }
+.eyebrow { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .14em; margin: 0; }
+h1 { margin: 4px 0 18px; font-size: 30px; }
+.icon-button { border: 0; background: transparent; color: var(--muted); font-size: 28px; }
+.toolbar input { width: 100%; border: 0; border-radius: 14px; padding: 14px 16px; background: var(--card); color: var(--text); outline: 0; }
+.status { color: var(--muted); }
+.catalog { display: grid; gap: 12px; margin-top: 16px; }
+.card { background: var(--card); border-radius: 18px; padding: 16px; }
+.card h2 { margin: 0 0 6px; font-size: 17px; }
+.card p { color: var(--muted); margin: 0 0 14px; white-space: pre-line; }
+.meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.price { font-size: 18px; font-weight: 700; }
+.stock { color: var(--muted); font-size: 13px; }
+.buy { border: 0; border-radius: 12px; padding: 10px 14px; background: var(--accent); color: #fff; font-weight: 700; }
+.checkout { background: var(--card); border-radius: 18px; padding: 18px; margin-top: 16px; }
+.checkout h2 { margin: 12px 0 4px; }
+.text-button { border: 0; background: transparent; color: var(--accent); padding: 0; }
+.quantity-label { display: block; color: var(--muted); margin-top: 20px; }
+.quantity { display: flex; align-items: center; gap: 22px; margin: 10px 0 16px; }
+.quantity-button { width: 40px; height: 40px; border: 0; border-radius: 12px; background: var(--accent); color: #fff; font-size: 24px; }
+.total { font-size: 20px; font-weight: 700; }
+.pay-button { width: 100%; border: 0; border-radius: 12px; padding: 13px; margin-top: 10px; background: var(--accent); color: #fff; font-weight: 700; }
+.pay-button.secondary { background: var(--tg-theme-secondary-bg-color, #3a4650); }

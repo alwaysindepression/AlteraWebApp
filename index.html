@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ALTERA</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <p class="eyebrow">ALTERA STORE</p>
+        <h1>Каталог</h1>
+      </div>
+      <button id="close" class="icon-button" aria-label="Закрыть">×</button>
+    </header>
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="Поиск товара">
+    </section>
+    <p id="status" class="status">Загрузка каталога...</p>
+    <section id="catalog" class="catalog"></section>
+    <section id="checkout" class="checkout" hidden>
+      <button id="checkout-close" class="text-button">← Назад к каталогу</button>
+      <h2 id="checkout-name"></h2>
+      <p id="checkout-price" class="status"></p>
+      <label class="quantity-label" for="quantity">Количество</label>
+      <div class="quantity">
+        <button id="quantity-minus" class="quantity-button">−</button>
+        <strong id="quantity">1</strong>
+        <button id="quantity-plus" class="quantity-button">+</button>
+      </div>
+      <p id="checkout-total" class="total"></p>
+      <button id="pay-balance" class="pay-button">Оплатить с баланса</button>
+      <button id="pay-xrocket" class="pay-button secondary">Оплатить через xRocket</button>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
