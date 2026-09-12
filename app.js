@@ -1,4 +1,5 @@
 const tg = window.Telegram?.WebApp;
+const API_URL = "https://bot-1789211951-2033-kaydzhe-mind.bothost.tech";
 const catalogNode = document.getElementById("catalog");
 const statusNode = document.getElementById("status");
 const searchNode = document.getElementById("search");
@@ -111,7 +112,7 @@ catalogNode.addEventListener("click", (event) => {
   if (category) openCheckout(category);
 });
 
-fetch("/api/catalog")
+fetch(`${API_URL}/api/catalog`)
   .then((response) => {
     if (!response.ok) throw new Error("catalog");
     return response.json();
