@@ -224,9 +224,19 @@ function submitPurchase(payment) {
     if (buttonId !== "confirm") return;
     const payload = {
       action: "purchase",
-      items: lines.map((line) => ({ cat_id: line.id, quantity: line.quantity })),
       payment
     };
+    if (checkoutMode === "single") {
+      // Keep the legacy fields for containers that have not restarted yet.
+      payload.cat_id = Number(lines[0].id);
+      payload.quantity = Number(lines[0].quantity);
+      payload.items = [{ cat_id: payload.cat_id, quantity: payload.quantity }];
+    } else {
+      payload.items = lines.map((line) => ({
+        cat_id: Number(line.id),
+        quantity: Number(line.quantity)
+      }));
+    }
     if (activePromo?.promo_type === "percent") payload.promo_code = activePromo.code;
     tg.sendData(JSON.stringify(payload));
     tg.close();
