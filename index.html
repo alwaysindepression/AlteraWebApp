@@ -22,18 +22,28 @@
     <p id="status" class="status">Загрузка каталога...</p>
     <section id="catalog" class="catalog"></section>
     <section id="checkout" class="checkout" hidden>
-      <button id="checkout-close" class="text-button">← Назад к каталогу</button>
-      <h2 id="checkout-name"></h2>
-      <p id="checkout-price" class="status"></p>
-      <label class="quantity-label" for="quantity">Количество</label>
-      <div class="quantity">
-        <button id="quantity-minus" class="quantity-button">−</button>
-        <strong id="quantity">1</strong>
-        <button id="quantity-plus" class="quantity-button">+</button>
+      <div class="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-name">
+        <div class="checkout-header">
+          <div>
+            <span class="checkout-kicker">Покупка товара</span>
+            <h2 id="checkout-name"></h2>
+          </div>
+          <button id="checkout-close" class="modal-close" aria-label="Закрыть">×</button>
+        </div>
+        <p id="checkout-price" class="status"></p>
+        <p id="checkout-description" class="checkout-description"></p>
+        <label class="quantity-label" for="quantity">Количество</label>
+        <div class="quantity">
+          <button id="quantity-minus" class="quantity-button">−</button>
+          <strong id="quantity">1</strong>
+          <button id="quantity-plus" class="quantity-button">+</button>
+        </div>
+        <p id="checkout-total" class="total"></p>
+        <div class="payment-options">
+          <button id="pay-balance" class="pay-button">Оплатить с баланса</button>
+          <button id="pay-xrocket" class="pay-button secondary">Оплатить через xRocket</button>
+        </div>
       </div>
-      <p id="checkout-total" class="total"></p>
-      <button id="pay-balance" class="pay-button">Оплатить с баланса</button>
-      <button id="pay-xrocket" class="pay-button secondary">Оплатить через xRocket</button>
     </section>
   </main>
   <script src="./app.js"></script>
