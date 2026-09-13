@@ -26,29 +26,49 @@ function render() {
   const visible = categories.filter((item) =>
     `${item.name} ${item.description}`.toLowerCase().includes(query)
   );
-  catalogNode.innerHTML = visible.map((item) => `
-    <article class="card">
-      <h2>${escapeHtml(item.name)}</h2>
-      <p>${escapeHtml(item.description || "Описание отсутствует")}</p>
-      <div class="meta">
-        <div>
-          <div class="price">${Number(item.price).toFixed(2)} USDT</div>
-          <div class="stock">В наличии: ${item.stock}</div>
-        </div>
-        <button class="buy" data-id="${item.id}" ${item.stock < 1 ? "disabled" : ""}>Выбрать</button>
+  const groups = new Map();
+  visible.forEach((item) => {
+    const group = item.group || "other";
+    if (!groups.has(group)) groups.set(group, []);
+    groups.get(group).push(item);
+  });
+  catalogNode.innerHTML = [...groups.entries()].map(([group, items]) => `
+    <section class="catalog-group">
+      <h2 class="group-title">${escapeHtml(groupTitle(group))}</h2>
+      <div class="group-items">
+        ${items.map((item) => `
+          <article class="card">
+            <h2>${escapeHtml(item.name)}</h2>
+            <p>${escapeHtml(item.description || "Описание отсутствует")}</p>
+            <div class="meta">
+              <div>
+                <div class="price">${Number(item.price).toFixed(2)} USDT</div>
+                <div class="stock">В наличии: ${item.stock}</div>
+              </div>
+              <button class="buy" data-id="${item.id}" ${item.stock < 1 ? "disabled" : ""}>Выбрать</button>
+            </div>
+          </article>
+        `).join("")}
       </div>
-    </article>
+    </section>
   `).join("");
   statusNode.textContent = visible.length ? "" : "Ничего не найдено";
+}
+
+function groupTitle(group) {
+  return {
+    l0gu_1970: "Мобильные операторы",
+    gy_1970: "Госуслуги",
+    tbank: "Банковские аккаунты",
+    other: "Другие товары"
+  }[group] || group;
 }
 
 function openCheckout(category) {
   selected = category;
   quantity = 1;
-  catalogNode.hidden = true;
-  searchNode.hidden = true;
-  statusNode.hidden = true;
   checkoutNode.hidden = false;
+  document.body.classList.add("checkout-open");
   checkoutName.textContent = category.name;
   checkoutPrice.textContent = `${Number(category.price).toFixed(2)} USDT за штуку`;
   updateCheckout();
@@ -56,9 +76,7 @@ function openCheckout(category) {
 
 function closeCheckout() {
   checkoutNode.hidden = true;
-  catalogNode.hidden = false;
-  searchNode.hidden = false;
-  statusNode.hidden = false;
+  document.body.classList.remove("checkout-open");
   selected = null;
 }
 
@@ -105,6 +123,9 @@ function escapeHtml(value) {
 }
 
 searchNode.addEventListener("input", render);
+checkoutNode.addEventListener("click", (event) => {
+  if (event.target === checkoutNode) closeCheckout();
+});
 catalogNode.addEventListener("click", (event) => {
   const button = event.target.closest(".buy");
   if (!button) return;
