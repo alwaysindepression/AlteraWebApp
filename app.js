@@ -40,7 +40,6 @@ function render() {
         ${items.map((item) => `
           <article class="card">
             <h2>${escapeHtml(item.name)}</h2>
-            <p>${escapeHtml(previewDescription(item.description))}</p>
             <div class="meta">
               <div>
                 <div class="price">${Number(item.price).toFixed(2)} USDT</div>
@@ -63,11 +62,6 @@ function groupTitle(group) {
     tbank: "Банковские аккаунты",
     other: "Другие товары"
   }[group] || group;
-}
-
-function previewDescription(description) {
-  const text = String(description || "Описание отсутствует").replace(/\s+/g, " ").trim();
-  return text.length > 110 ? `${text.slice(0, 107).trimEnd()}...` : text;
 }
 
 function openCheckout(category) {
