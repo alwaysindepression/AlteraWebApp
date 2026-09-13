@@ -35,7 +35,14 @@ h2 { margin-bottom: 0; font-size: 22px; letter-spacing: -.03em; }
 .toolbar input, .promo-row input, select { min-width: 0; width: 100%; border: 1px solid var(--line); border-radius: 11px; padding: 12px 13px; background: var(--panel); color: var(--text); outline: 0; }
 .toolbar input:focus, input:focus, select:focus { border-color: #a7a7af; }
 .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-select { color: var(--muted); }
+.filter-field { display: grid; gap: 6px; min-width: 0; }
+.filter-field span { color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+select {
+  appearance: auto;
+  min-height: 43px;
+  color: var(--text);
+  background-color: var(--panel);
+}
 .status, .form-status { min-height: 21px; color: var(--muted); font-size: 13px; }
 .catalog { display: grid; gap: 26px; margin-top: 12px; }
 .catalog-group { display: grid; gap: 12px; }

@@ -50,6 +50,17 @@ function getTelegramInitData() {
   return tg?.initData || window.Telegram?.WebApp?.initData || "";
 }
 
+async function waitForTelegramInitData(timeout = 2000) {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < timeout) {
+    const initData = getTelegramInitData();
+    if (initData) return initData;
+    window.Telegram?.WebApp?.ready();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  return "";
+}
+
 async function api(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
@@ -300,7 +311,7 @@ function baseCartTotal() {
 }
 
 async function loadProfile() {
-  const initData = getTelegramInitData();
+  const initData = await waitForTelegramInitData();
   if (!initData) {
     $("profile-card").innerHTML = `<div class="empty-state">Профиль доступен при открытии приложения из Telegram.</div>`;
     return;
@@ -314,7 +325,7 @@ async function loadProfile() {
 }
 
 async function loadHistory() {
-  if (!getTelegramInitData()) { $("history-status").textContent = "История доступна при открытии приложения из Telegram."; return; }
+  if (!await waitForTelegramInitData()) { $("history-status").textContent = "История доступна при открытии приложения из Telegram."; return; }
   $("history-status").textContent = "Загрузка...";
   try {
     const data = await api(`/api/history?limit=100&sort=${$("history-sort").value}`);
@@ -350,8 +361,4 @@ async function loadCatalog() {
 }
 
 loadCatalog();
-setTimeout(() => {
-  if (getTelegramInitData()) return;
-  window.Telegram?.WebApp?.ready();
-}, 250);
 loadProfile();
