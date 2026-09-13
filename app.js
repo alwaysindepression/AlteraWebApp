@@ -1,5 +1,5 @@
 const tg = window.Telegram?.WebApp;
-const API_URL = "https://bot-1789211951-2033-kaydzhe-mind.bothost.tech";
+const API_URL = "https://bot-1789213141-7968-kaydzhe-mind.bothost.tech";
 const catalogNode = document.getElementById("catalog");
 const statusNode = document.getElementById("status");
 const searchNode = document.getElementById("search");
