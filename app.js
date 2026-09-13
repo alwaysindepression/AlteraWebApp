@@ -20,6 +20,7 @@ $("quantity-minus").addEventListener("click", () => changeQuantity(-1));
 $("quantity-plus").addEventListener("click", () => changeQuantity(1));
 $("pay-balance").addEventListener("click", () => submitPurchase("balance"));
 $("pay-xrocket").addEventListener("click", () => submitPurchase("xrocket"));
+$("pay-stars").addEventListener("click", () => submitPurchase("stars"));
 $("cart-checkout").addEventListener("click", () => openCartCheckout());
 $("promo-apply").addEventListener("click", () => applyPromo($("promo-input"), $("promo-status")));
 $("checkout-promo-apply").addEventListener("click", () => applyPromo($("checkout-promo"), $("checkout-promo-status")));
@@ -40,8 +41,13 @@ checkoutNode.addEventListener("click", (event) => {
 
 function headers() {
   const result = { "Content-Type": "application/json" };
-  if (tg?.initData) result["X-Telegram-Init-Data"] = tg.initData;
+  const initData = getTelegramInitData();
+  if (initData) result["X-Telegram-Init-Data"] = initData;
   return result;
+}
+
+function getTelegramInitData() {
+  return tg?.initData || window.Telegram?.WebApp?.initData || "";
 }
 
 async function api(path, options = {}) {
@@ -213,6 +219,10 @@ async function applyPromo(input, output) {
 
 function submitPurchase(payment) {
   if (!tg) { setStatus("Откройте Web App внутри Telegram для покупки."); return; }
+  if (payment === "stars" && checkoutMode === "cart") {
+    $("checkout-promo-status").textContent = "Telegram Stars доступны для одного товара. Для корзины используйте баланс или xRocket.";
+    return;
+  }
   const lines = checkoutLines();
   if (!lines.length || lines.some((line) => !categories.find((item) => item.id === line.id))) return;
   const amount = (baseCheckoutTotal() * (1 - (activePromo?.amount || 0) / 100)).toFixed(2);
@@ -290,7 +300,8 @@ function baseCartTotal() {
 }
 
 async function loadProfile() {
-  if (!tg?.initData) {
+  const initData = getTelegramInitData();
+  if (!initData) {
     $("profile-card").innerHTML = `<div class="empty-state">Профиль доступен при открытии приложения из Telegram.</div>`;
     return;
   }
@@ -303,7 +314,7 @@ async function loadProfile() {
 }
 
 async function loadHistory() {
-  if (!tg?.initData) { $("history-status").textContent = "История доступна при открытии приложения из Telegram."; return; }
+  if (!getTelegramInitData()) { $("history-status").textContent = "История доступна при открытии приложения из Telegram."; return; }
   $("history-status").textContent = "Загрузка...";
   try {
     const data = await api(`/api/history?limit=100&sort=${$("history-sort").value}`);
@@ -339,4 +350,8 @@ async function loadCatalog() {
 }
 
 loadCatalog();
+setTimeout(() => {
+  if (getTelegramInitData()) return;
+  window.Telegram?.WebApp?.ready();
+}, 250);
 loadProfile();
