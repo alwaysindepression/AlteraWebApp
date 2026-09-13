@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#050505">
   <title>ALTERA STORE</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="./style.css?v=13">
+  <link rel="stylesheet" href="./style.css?v=14">
 </head>
 <body>
   <main class="app">
@@ -65,6 +65,24 @@
     <section id="profile-view" class="view" hidden>
       <div class="section-heading"><div><p class="eyebrow">АККАУНТ</p><h2>Профиль</h2></div></div>
       <section id="profile-card" class="profile-card"></section>
+      <section id="referral-card" class="profile-card referral-card"></section>
+      <section class="profile-card deposit-card">
+        <div class="profile-card-heading"><strong>Пополнить баланс</strong><span>Зачисление в USDT</span></div>
+        <div class="deposit-amounts" role="group" aria-label="Сумма пополнения">
+          <button type="button" class="amount-option" data-amount="5">5</button>
+          <button type="button" class="amount-option active" data-amount="10">10</button>
+          <button type="button" class="amount-option" data-amount="25">25</button>
+          <button type="button" class="amount-option" data-amount="50">50</button>
+          <button type="button" class="amount-option" data-amount="100">100</button>
+        </div>
+        <label class="deposit-custom"><span>Своя сумма, USDT</span><input id="deposit-amount" type="number" min="1" max="10000" step="0.01" value="10"></label>
+        <div class="deposit-providers" role="group" aria-label="Способ пополнения">
+          <button type="button" class="provider-option active" data-provider="xrocket">xRocket</button>
+          <button type="button" class="provider-option" data-provider="stars">Telegram Stars</button>
+        </div>
+        <button id="deposit-submit" class="primary-button" type="button">Пополнить через xRocket</button>
+        <p id="deposit-status" class="form-status"></p>
+      </section>
       <div class="promo-box">
         <div><strong>Промокод</strong><span>Скидка или бонус на баланс</span></div>
         <div class="promo-row">
@@ -85,6 +103,7 @@
       </div>
     </section>
   </main>
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
   <section id="checkout" class="checkout" hidden>
     <div class="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-name">
@@ -115,6 +134,6 @@
       </div>
     </div>
   </section>
-  <script src="./app.js?v=13"></script>
+  <script src="./app.js?v=14"></script>
 </body>
 </html>

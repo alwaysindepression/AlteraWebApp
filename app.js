@@ -12,6 +12,9 @@ let selected = null;
 let quantity = 1;
 let checkoutMode = "single";
 let activePromo = null;
+let depositProvider = "xrocket";
+let depositPollTimer = null;
+let previousCartCount = 0;
 
 tg?.ready();
 tg?.expand();
@@ -28,6 +31,23 @@ $("search").addEventListener("input", renderCatalog);
 $("category-filter").addEventListener("change", renderCatalog);
 $("sort").addEventListener("change", renderCatalog);
 $("history-sort").addEventListener("change", loadHistory);
+document.querySelectorAll(".amount-option").forEach((button) => button.addEventListener("click", () => {
+  $("deposit-amount").value = button.dataset.amount;
+  document.querySelectorAll(".amount-option").forEach((option) => option.classList.toggle("active", option === button));
+}));
+document.querySelectorAll(".provider-option").forEach((button) => button.addEventListener("click", () => {
+  depositProvider = button.dataset.provider;
+  document.querySelectorAll(".provider-option").forEach((option) => option.classList.toggle("active", option === button));
+  $("deposit-submit").textContent = `Пополнить через ${depositProvider === "stars" ? "Telegram Stars" : "xRocket"}`;
+}));
+$("deposit-submit").addEventListener("click", startDeposit);
+document.body.addEventListener("click", (event) => {
+  const copyButton = event.target.closest("[data-copy]");
+  if (!copyButton) return;
+  copyText(copyButton.dataset.copy)
+    .then(() => showToast("Ссылка скопирована"))
+    .catch(() => showToast("Не удалось скопировать ссылку", "error"));
+});
 document.querySelectorAll(".tab").forEach((tab) => tab.addEventListener("click", () => showView(tab.dataset.view)));
 document.body.addEventListener("click", (event) => {
   const viewButton = event.target.closest("[data-view]");
@@ -112,6 +132,15 @@ function renderCatalog() {
   statusNode.textContent = visible.length ? `${visible.length} ${plural(visible.length, "товар", "товара", "товаров")}` : "Ничего не найдено";
 }
 
+function renderCatalogSkeleton(count = 6) {
+  catalogNode.innerHTML = `<div class="skeleton-grid">${Array.from({ length: count }, () => `
+    <article class="card skeleton-card" aria-hidden="true">
+      <div class="skeleton skeleton-short"></div><div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-price"></div><div class="skeleton skeleton-buttons"></div>
+    </article>`).join("")}</div>`;
+  statusNode.textContent = "Загрузка каталога...";
+}
+
 function cardTemplate(item) {
   return `<article class="card">
     <div class="card-top"><span class="pill">${escapeHtml(groupTitle(item.group || "other"))}</span><span class="stock">${item.stock} шт.</span></div>
@@ -133,7 +162,15 @@ function handleCatalogClick(event) {
   if (!item) return;
   if (button.classList.contains("cart-add")) {
     addToCart(item.id);
-    setStatus("Товар добавлен в корзину");
+    button.classList.add("is-added");
+    button.textContent = "Добавлено ✓";
+    button.closest(".card")?.classList.add("cart-added");
+    setTimeout(() => {
+      button.classList.remove("is-added");
+      button.textContent = "В корзину";
+      button.closest(".card")?.classList.remove("cart-added");
+    }, 1200);
+    showToast("Товар добавлен в корзину");
   } else openCheckout(item);
 }
 
@@ -216,6 +253,7 @@ async function applyPromo(input, output) {
       output.textContent = result.message;
       input.value = "";
       loadProfile();
+      showToast("Промокод применён");
       return;
     }
     activePromo = result;
@@ -223,6 +261,7 @@ async function applyPromo(input, output) {
     $("promo-input").value = code;
     output.textContent = result.message;
     updateCheckout();
+    showToast("Промокод применён");
   } catch (error) {
     output.textContent = error.message;
   }
@@ -300,7 +339,15 @@ function renderCart() {
   $("cart-empty").hidden = hasItems;
   $("cart-summary").hidden = !hasItems;
   $("cart-total").textContent = `${baseCartTotal().toFixed(2)} USDT`;
-  $("cart-count").textContent = cart.reduce((sum, line) => sum + line.quantity, 0);
+  const count = cart.reduce((sum, line) => sum + line.quantity, 0);
+  $("cart-count").textContent = count;
+  if (count !== previousCartCount) {
+    const countNode = $("cart-count");
+    countNode.classList.remove("count-pop");
+    void countNode.offsetWidth;
+    countNode.classList.add("count-pop");
+    previousCartCount = count;
+  }
 }
 
 function baseCartTotal() {
@@ -314,6 +361,7 @@ async function loadProfile() {
   const initData = await waitForTelegramInitData();
   if (!initData) {
     $("profile-card").innerHTML = `<div class="empty-state">Профиль доступен при открытии приложения из Telegram.</div>`;
+    $("referral-card").innerHTML = `<div class="empty-state">Реферальная программа доступна из Telegram.</div>`;
     return;
   }
   try {
@@ -321,7 +369,15 @@ async function loadProfile() {
     const user = data.user || {};
     $("profile-card").innerHTML = `<div class="profile-main"><div class="profile-avatar">${escapeHtml((user.first_name || user.username || "?").slice(0, 1).toUpperCase())}</div><div><h3>${escapeHtml([user.first_name, user.last_name].filter(Boolean).join(" ") || "Пользователь")}</h3><span>${user.username ? "@" + escapeHtml(user.username) : "ID " + user.id}</span></div></div>
       <div class="stats"><div><strong>${Number(data.balance).toFixed(2)}</strong><span>USDT на балансе</span></div><div><strong>${data.purchases || 0}</strong><span>товаров куплено</span></div><div><strong>${data.referrals?.count || 0}</strong><span>рефералов</span></div></div>`;
-  } catch (error) { $("profile-card").innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`; }
+    const referrals = data.referrals || {};
+    const referralLink = referrals.link || "";
+    $("referral-card").innerHTML = `<div class="profile-card-heading"><strong>Реферальная программа</strong><span>Получайте 10% с покупок друзей</span></div>
+      <div class="referral-link"><code>${escapeHtml(referralLink || "Ссылка недоступна")}</code><button class="copy-button" type="button" data-copy="${escapeHtml(referralLink)}" ${referralLink ? "" : "disabled"}>Копировать</button></div>
+      <div class="referral-stats"><div><strong>${Number(referrals.count || 0)}</strong><span>рефералов</span></div><div><strong>${Number(referrals.earnings || 0).toFixed(2)}</strong><span>заработано USDT</span></div></div>`;
+  } catch (error) {
+    $("profile-card").innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+    $("referral-card").innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+  }
 }
 
 async function loadHistory() {
@@ -341,12 +397,102 @@ function formatDate(value) {
 }
 
 function setStatus(message) { statusNode.textContent = message; }
+function showToast(message, type = "default") {
+  const container = $("toast-container");
+  if (!container) return;
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add("toast-visible"));
+  setTimeout(() => {
+    toast.classList.remove("toast-visible");
+    setTimeout(() => toast.remove(), 220);
+  }, 2600);
+}
+async function copyText(value) {
+  if (!value) throw new Error("Ссылка недоступна");
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(value);
+  const input = document.createElement("textarea");
+  input.value = value;
+  input.style.position = "fixed";
+  input.style.opacity = "0";
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand("copy");
+  input.remove();
+}
+async function startDeposit() {
+  if (!await waitForTelegramInitData()) {
+    showToast("Откройте приложение из Telegram", "error");
+    return;
+  }
+  const amount = Number($("deposit-amount").value);
+  const status = $("deposit-status");
+  if (!Number.isFinite(amount) || amount < 1 || amount > 10000) {
+    status.textContent = "Сумма должна быть от 1 до 10000 USDT.";
+    return;
+  }
+  const submit = $("deposit-submit");
+  submit.disabled = true;
+  status.textContent = "Создаём счёт...";
+  try {
+    const result = await api("/api/deposit", {
+      method: "POST",
+      body: JSON.stringify({ amount: Number(amount.toFixed(2)), provider: depositProvider })
+    });
+    if (depositProvider === "stars") {
+      if (!tg?.openInvoice || !result.invoice_link) throw new Error("Telegram Stars недоступны в этом клиенте.");
+      tg.openInvoice(result.invoice_link, (invoiceStatus) => {
+        if (invoiceStatus === "paid") {
+          showToast(`Баланс пополнен на ${amount.toFixed(2)} USDT`);
+          status.textContent = "Оплата подтверждена.";
+          loadProfile();
+        } else if (invoiceStatus === "cancelled" || invoiceStatus === "failed") {
+          status.textContent = "Оплата отменена.";
+        }
+      });
+    } else {
+      tg?.openLink?.(result.pay_url);
+      status.textContent = "Ожидаем оплату xRocket...";
+      pollDeposit(result.invoice_id, amount);
+    }
+  } catch (error) {
+    status.textContent = error.message;
+    showToast(error.message, "error");
+  } finally {
+    submit.disabled = false;
+  }
+}
+function pollDeposit(invoiceId, amount) {
+  clearInterval(depositPollTimer);
+  let attempts = 0;
+  depositPollTimer = setInterval(async () => {
+    if (++attempts > 90) { clearInterval(depositPollTimer); $("deposit-status").textContent = "Время ожидания истекло."; return; }
+    try {
+      const result = await api(`/api/deposit/status?invoice_id=${encodeURIComponent(invoiceId)}`);
+      if (result.status === "paid") {
+        clearInterval(depositPollTimer);
+        $("deposit-status").textContent = "Оплата подтверждена.";
+        showToast(`Баланс пополнен на ${amount.toFixed(2)} USDT`);
+        loadProfile();
+      } else if (result.status === "expired") {
+        clearInterval(depositPollTimer);
+        $("deposit-status").textContent = "Счёт просрочен. Создайте новый.";
+      }
+    } catch (error) {
+      clearInterval(depositPollTimer);
+      $("deposit-status").textContent = error.message;
+    }
+  }, 4000);
+}
 function plural(value, one, few, many) { const n = Math.abs(value) % 100; return (n % 10 === 1 && n !== 11) ? one : (n % 10 >= 2 && n % 10 <= 4 && (n < 10 || n >= 20)) ? few : many; }
 function escapeHtml(value) { return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char])); }
 function loadCart() { try { return JSON.parse(localStorage.getItem("altera-cart") || "[]").filter((line) => line && Number(line.id) > 0 && Number(line.quantity) > 0); } catch { return []; } }
 function saveCart() { localStorage.setItem("altera-cart", JSON.stringify(cart)); }
 
 async function loadCatalog() {
+  renderCatalogSkeleton();
   try {
     const data = await api("/api/catalog");
     categories = data.categories || [];
