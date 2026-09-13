@@ -15,8 +15,6 @@ let activePromo = null;
 
 tg?.ready();
 tg?.expand();
-$("close").addEventListener("click", () => tg?.close());
-$("profile-shortcut").addEventListener("click", () => showView("profile-view"));
 $("checkout-close").addEventListener("click", closeCheckout);
 $("quantity-minus").addEventListener("click", () => changeQuantity(-1));
 $("quantity-plus").addEventListener("click", () => changeQuantity(1));
