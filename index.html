@@ -2,50 +2,116 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ALTERA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <title>ALTERA STORE</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="./style.css?v=3">
+  <link rel="stylesheet" href="./style.css?v=5">
 </head>
 <body>
   <main class="app">
-    <header>
+    <header class="topbar">
       <div>
         <p class="eyebrow">ALTERA STORE</p>
-        <h1>Каталог</h1>
+        <h1>Магазин</h1>
       </div>
-      <button id="close" class="icon-button" aria-label="Закрыть">×</button>
+      <div class="top-actions">
+        <button id="profile-shortcut" class="avatar-button" aria-label="Профиль">♙</button>
+        <button id="close" class="icon-button" aria-label="Закрыть">×</button>
+      </div>
     </header>
-    <section class="toolbar">
-      <input id="search" type="search" placeholder="Поиск товара">
-    </section>
-    <p id="status" class="status">Загрузка каталога...</p>
-    <section id="catalog" class="catalog"></section>
-    <section id="checkout" class="checkout" hidden>
-      <div class="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-name">
-        <div class="checkout-header">
-          <div>
-            <span class="checkout-kicker">Покупка товара</span>
-            <h2 id="checkout-name"></h2>
-          </div>
-          <button id="checkout-close" class="modal-close" aria-label="Закрыть">×</button>
+
+    <nav class="tabs" aria-label="Разделы магазина">
+      <button class="tab active" data-view="catalog-view">Каталог</button>
+      <button class="tab" data-view="history-view">Покупки</button>
+      <button class="tab" data-view="profile-view">Профиль</button>
+      <button class="tab cart-tab" data-view="cart-view">Корзина <span id="cart-count">0</span></button>
+    </nav>
+
+    <section id="catalog-view" class="view active-view">
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Поиск товара" autocomplete="off">
+        <div class="filters">
+          <select id="category-filter" aria-label="Фильтр категории">
+            <option value="all">Все категории</option>
+          </select>
+          <select id="sort" aria-label="Сортировка">
+            <option value="default">Сначала рекомендуемые</option>
+            <option value="price-asc">Цена: по возрастанию</option>
+            <option value="price-desc">Цена: по убыванию</option>
+            <option value="name">Название: А–Я</option>
+            <option value="stock">Больше в наличии</option>
+          </select>
         </div>
-        <p id="checkout-price" class="status"></p>
-        <p id="checkout-description" class="checkout-description"></p>
+      </div>
+      <p id="status" class="status">Загрузка каталога...</p>
+      <section id="catalog" class="catalog"></section>
+    </section>
+
+    <section id="history-view" class="view" hidden>
+      <div class="section-heading">
+        <div><p class="eyebrow">ВАШИ ЗАКАЗЫ</p><h2>История покупок</h2></div>
+        <select id="history-sort" aria-label="Сортировка истории">
+          <option value="newest">Новые</option>
+          <option value="oldest">Старые</option>
+        </select>
+      </div>
+      <p id="history-status" class="status">Загрузка истории...</p>
+      <section id="history-list" class="history-list"></section>
+    </section>
+
+    <section id="profile-view" class="view" hidden>
+      <div class="section-heading"><div><p class="eyebrow">АККАУНТ</p><h2>Профиль</h2></div></div>
+      <section id="profile-card" class="profile-card"></section>
+      <div class="promo-box">
+        <div><strong>Промокод</strong><span>Скидка или бонус на баланс</span></div>
+        <div class="promo-row">
+          <input id="promo-input" type="text" maxlength="64" placeholder="Введите код" autocomplete="off">
+          <button id="promo-apply" class="accent-button">Применить</button>
+        </div>
+        <p id="promo-status" class="form-status"></p>
+      </div>
+    </section>
+
+    <section id="cart-view" class="view" hidden>
+      <div class="section-heading"><div><p class="eyebrow">ВАШ ВЫБОР</p><h2>Корзина</h2></div></div>
+      <section id="cart-list" class="cart-list"></section>
+      <div id="cart-empty" class="empty-state">Корзина пока пуста.<br><button class="text-button" data-view="catalog-view">Перейти в каталог</button></div>
+      <div id="cart-summary" class="cart-summary" hidden>
+        <span>Итого</span><strong id="cart-total"></strong>
+        <button id="cart-checkout" class="primary-button">Перейти к оплате</button>
+      </div>
+    </section>
+  </main>
+
+  <section id="checkout" class="checkout" hidden>
+    <div class="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-name">
+      <div class="checkout-header">
+        <div><span class="checkout-kicker">ОФОРМЛЕНИЕ</span><h2 id="checkout-name"></h2></div>
+        <button id="checkout-close" class="modal-close" aria-label="Закрыть">×</button>
+      </div>
+      <p id="checkout-price" class="status"></p>
+      <p id="checkout-description" class="checkout-description"></p>
+      <div id="quantity-controls">
         <label class="quantity-label" for="quantity">Количество</label>
         <div class="quantity">
           <button id="quantity-minus" class="quantity-button">−</button>
           <strong id="quantity">1</strong>
           <button id="quantity-plus" class="quantity-button">+</button>
         </div>
-        <p id="checkout-total" class="total"></p>
-        <div class="payment-options">
-          <button id="pay-balance" class="pay-button">Оплатить с баланса</button>
-          <button id="pay-xrocket" class="pay-button secondary">Оплатить через xRocket</button>
-        </div>
       </div>
-    </section>
-  </main>
-  <script src="./app.js?v=3"></script>
+      <div class="promo-row checkout-promo">
+        <input id="checkout-promo" type="text" maxlength="64" placeholder="Промокод (необязательно)">
+        <button id="checkout-promo-apply" class="accent-button">Применить</button>
+      </div>
+      <p id="checkout-promo-status" class="form-status"></p>
+      <p id="checkout-total" class="total"></p>
+      <div class="payment-options">
+        <button id="pay-balance" class="pay-button">Оплатить с баланса</button>
+        <button id="pay-xrocket" class="pay-button secondary">Оплатить через xRocket</button>
+      </div>
+    </div>
+  </section>
+  <script src="./app.js?v=5"></script>
 </body>
 </html>
