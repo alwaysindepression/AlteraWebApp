@@ -2,11 +2,11 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#050505">
   <title>ALTERA STORE</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="./style.css?v=14">
+  <link rel="stylesheet" href="./style.css?v=17">
 </head>
 <body>
   <main class="app">
@@ -14,17 +14,24 @@
       <div>
         <p class="eyebrow">ALTERA STORE</p>
         <h1>Магазин</h1>
+        <p class="topbar-subtitle">Проверенные товары с моментальной выдачей</p>
       </div>
     </header>
+    <section class="home-banner" aria-label="Преимущества магазина">
+      <div><span class="banner-kicker">БЫСТРО · БЕЗОПАСНО · 24/7</span><strong>Оплата — выдача автоматически</strong><span>История заказов и поддержка всегда под рукой</span></div>
+      <span class="banner-mark" aria-hidden="true">✦</span>
+    </section>
 
     <nav class="tabs" aria-label="Разделы магазина">
-      <button class="tab active" data-view="catalog-view">Каталог</button>
-      <button class="tab" data-view="history-view">Покупки</button>
-      <button class="tab" data-view="profile-view">Профиль</button>
-      <button class="tab cart-tab" data-view="cart-view">Корзина <span id="cart-count">0</span></button>
+      <button class="tab active" data-view="catalog-view" aria-controls="catalog-view">Каталог</button>
+      <button class="tab" data-view="history-view" aria-controls="history-view">Покупки</button>
+      <button class="tab" data-view="profile-view" aria-controls="profile-view">Профиль</button>
+      <button class="tab" data-view="favorites-view" aria-controls="favorites-view">Избранное</button>
+      <button class="tab cart-tab" data-view="cart-view" aria-controls="cart-view">Корзина <span id="cart-count" aria-label="Количество товаров в корзине">0</span></button>
     </nav>
 
     <section id="catalog-view" class="view active-view">
+      <div class="catalog-intro"><div><p class="eyebrow">ВЫБЕРИТЕ СВОЙ ТОВАР</p><h2>Популярное и новое</h2></div><button id="show-favorites" class="text-button" type="button">♡ Избранное</button></div>
       <div class="toolbar">
         <div class="search-row">
           <input id="search" list="product-suggestions" type="search" placeholder="Поиск товара" autocomplete="off">
@@ -56,6 +63,18 @@
         <h2>Как это работает</h2>
         <div class="steps"><span>1 <b>Выберите товар</b></span><span>2 <b>Оплатите</b></span><span>3 <b>Получите автоматически</b></span></div>
       </section>
+
+      <section id="product-view" class="view" hidden aria-labelledby="product-title">
+        <button id="product-back" class="text-button" type="button">← Назад в каталог</button>
+        <div id="product-detail" class="product-detail"></div>
+      </section>
+
+    </section>
+
+    <section id="favorites-view" class="view" hidden aria-labelledby="favorites-title">
+      <div class="section-heading"><div><p class="eyebrow">СОХРАНЁННЫЕ ТОВАРЫ</p><h2 id="favorites-title">Избранное</h2></div></div>
+      <p id="favorites-status" class="status">Загрузка...</p>
+      <section id="favorites-list" class="catalog"></section>
     </section>
 
     <section id="history-view" class="view" hidden>
@@ -113,7 +132,7 @@
       <div id="cart-empty" class="empty-state">Корзина пока пуста.<br><button class="text-button" data-view="catalog-view">Перейти в каталог</button></div>
       <div id="cart-summary" class="cart-summary" hidden>
         <span>Итого</span><strong id="cart-total"></strong>
-        <button id="cart-checkout" class="primary-button">Перейти к оплате</button>
+        <button id="cart-checkout" class="primary-button" type="button">Перейти к оплате</button>
       </div>
     </section>
   </main>
@@ -135,9 +154,9 @@
       <div id="quantity-controls">
         <label class="quantity-label" for="quantity">Количество</label>
         <div class="quantity">
-          <button id="quantity-minus" class="quantity-button">−</button>
+          <button id="quantity-minus" class="quantity-button" type="button" aria-label="Уменьшить количество">−</button>
           <strong id="quantity">1</strong>
-          <button id="quantity-plus" class="quantity-button">+</button>
+          <button id="quantity-plus" class="quantity-button" type="button" aria-label="Увеличить количество">+</button>
         </div>
       </div>
       <div class="promo-row checkout-promo">
@@ -145,14 +164,26 @@
         <button id="checkout-promo-apply" class="accent-button">Применить</button>
       </div>
       <p id="checkout-promo-status" class="form-status"></p>
+      <div class="checkout-summary" aria-live="polite">
+        <span id="checkout-balance">Баланс: загрузка...</span>
+        <span id="checkout-shortage" class="checkout-shortage" hidden></span>
+      </div>
       <p id="checkout-total" class="total"></p>
-      <div class="payment-options">
+      <div id="payment-options" class="payment-options">
         <button id="pay-balance" class="pay-button">Оплатить с баланса</button>
         <button id="pay-xrocket" class="pay-button secondary">Оплатить через xRocket</button>
         <button id="pay-stars" class="pay-button secondary">Оплатить через Telegram Stars</button>
       </div>
+      <button id="checkout-deposit" class="checkout-deposit" type="button">Пополнить баланс на недостающую сумму</button>
+      <section id="payment-waiting" class="payment-waiting" hidden aria-live="polite">
+        <div class="waiting-heading"><span class="waiting-icon" aria-hidden="true">◷</span><div><strong>Ожидаем оплату</strong><span id="waiting-order">Счёт xRocket создан</span></div></div>
+        <img id="payment-qr" class="payment-qr" alt="QR-код для оплаты xRocket">
+        <div class="waiting-details"><strong id="waiting-amount">0.00 USDT</strong><span id="waiting-expiry">Счёт действует 30 минут</span><span id="waiting-indicator" role="status">● Проверка каждые 4 секунды</span></div>
+        <p id="waiting-status" class="form-status">Откройте счёт, оплатите его и дождитесь подтверждения.</p>
+        <div class="waiting-actions"><button id="waiting-open" class="primary-button" type="button">Открыть xRocket</button><button id="waiting-copy" class="secondary-button" type="button">Скопировать ссылку</button><button id="waiting-check" class="secondary-button" type="button">Проверить оплату</button></div>
+      </section>
     </div>
   </section>
-  <script src="./app.js?v=16"></script>
+  <script src="./app.js?v=25"></script>
 </body>
 </html>
