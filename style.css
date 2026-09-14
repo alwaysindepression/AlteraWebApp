@@ -123,6 +123,7 @@ select {
 .buy, .cart-add, .details, .accent-button, .primary-button, .pay-button { border: 0; border-radius: 10px; padding: 10px 13px; font-weight: 750; }
 .details { border: 1px solid var(--line); background: var(--soft); color: var(--text); }
 .card-actions button { flex: 1 1 0; min-width: 0; white-space: nowrap; padding: 9px 6px; font-size: 12px; }
+.card-actions .details { display: inline-flex; align-items: center; justify-content: center; text-align: center; }
 .buy, .primary-button, .accent-button { background: var(--text); color: #0b0b0d; }
 .cart-add { border: 1px solid #55555c; background: transparent; color: var(--text); transition: background .2s, border-color .2s, transform .2s; }
 .cart-add.is-added { background: var(--text); border-color: var(--text); color: #0b0b0d; animation: button-added .35s ease-out; }
