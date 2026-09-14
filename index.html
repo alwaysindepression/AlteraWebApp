@@ -26,7 +26,11 @@
 
     <section id="catalog-view" class="view active-view">
       <div class="toolbar">
-        <input id="search" type="search" placeholder="Поиск товара" autocomplete="off">
+        <div class="search-row">
+          <input id="search" list="product-suggestions" type="search" placeholder="Поиск товара" autocomplete="off">
+          <button id="refresh-catalog" class="refresh-button" type="button" aria-label="Обновить каталог">↻</button>
+        </div>
+        <datalist id="product-suggestions"></datalist>
         <div class="filters">
           <label class="filter-field">
             <span>Категория</span>
@@ -48,6 +52,10 @@
       </div>
       <p id="status" class="status">Загрузка каталога...</p>
       <section id="catalog" class="catalog"></section>
+      <section class="info-block">
+        <h2>Как это работает</h2>
+        <div class="steps"><span>1 <b>Выберите товар</b></span><span>2 <b>Оплатите</b></span><span>3 <b>Получите автоматически</b></span></div>
+      </section>
     </section>
 
     <section id="history-view" class="view" hidden>
@@ -89,6 +97,12 @@
           <input id="promo-input" type="text" maxlength="64" placeholder="Введите код" autocomplete="off">
           <button id="promo-apply" class="accent-button">Применить</button>
         </div>
+        <section class="profile-card guarantees">
+          <div class="profile-card-heading"><strong>Гарантии ALTERA</strong><span>Безопасная покупка</span></div>
+          <p>✓ Моментальная выдача после подтверждения оплаты</p>
+          <p>✓ Проверка товара перед добавлением в каталог</p>
+          <p>✓ Поддержка по заказу через раздел «Поддержка»</p>
+        </section>
         <p id="promo-status" class="form-status"></p>
       </div>
     </section>
@@ -104,6 +118,10 @@
     </section>
   </main>
   <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+  <div id="cart-bar" class="cart-bar" hidden>
+    <span><strong id="cart-bar-count">0</strong> товаров · <strong id="cart-bar-total">0.00 USDT</strong></span>
+    <button id="cart-bar-open" class="primary-button" type="button">Оформить</button>
+  </div>
 
   <section id="checkout" class="checkout" hidden>
     <div class="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-name">
@@ -113,6 +131,7 @@
       </div>
       <p id="checkout-price" class="status"></p>
       <p id="checkout-description" class="checkout-description"></p>
+      <section id="checkout-reviews" class="checkout-reviews"></section>
       <div id="quantity-controls">
         <label class="quantity-label" for="quantity">Количество</label>
         <div class="quantity">
@@ -134,6 +153,6 @@
       </div>
     </div>
   </section>
-  <script src="./app.js?v=14"></script>
+  <script src="./app.js?v=16"></script>
 </body>
 </html>

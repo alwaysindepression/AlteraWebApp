@@ -25,6 +25,12 @@ $("pay-balance").addEventListener("click", () => submitPurchase("balance"));
 $("pay-xrocket").addEventListener("click", () => submitPurchase("xrocket"));
 $("pay-stars").addEventListener("click", () => submitPurchase("stars"));
 $("cart-checkout").addEventListener("click", () => openCartCheckout());
+$("cart-bar-open").addEventListener("click", () => openCartCheckout());
+$("refresh-catalog").addEventListener("click", () => {
+  haptic("light");
+  loadCatalog();
+  showToast("Каталог обновляется");
+});
 $("promo-apply").addEventListener("click", () => applyPromo($("promo-input"), $("promo-status")));
 $("checkout-promo-apply").addEventListener("click", () => applyPromo($("checkout-promo"), $("checkout-promo-status")));
 $("search").addEventListener("input", renderCatalog);
@@ -52,6 +58,12 @@ document.querySelectorAll(".tab").forEach((tab) => tab.addEventListener("click",
 document.body.addEventListener("click", (event) => {
   const viewButton = event.target.closest("[data-view]");
   if (viewButton && !viewButton.classList.contains("tab")) showView(viewButton.dataset.view);
+  const repeatButton = event.target.closest("[data-repeat-cat]");
+  if (repeatButton) {
+    const item = categories.find((entry) => String(entry.id) === repeatButton.dataset.repeatCat);
+    if (item && item.stock > 0) { showView("catalog-view"); openCheckout(item); }
+    else showToast("Товар закончился", "error");
+  }
 });
 catalogNode.addEventListener("click", handleCatalogClick);
 $("cart-list").addEventListener("click", handleCartClick);
@@ -162,6 +174,7 @@ function handleCatalogClick(event) {
   if (!item) return;
   if (button.classList.contains("cart-add")) {
     addToCart(item.id);
+    haptic("light");
     button.classList.add("is-added");
     button.textContent = "Добавлено ✓";
     button.closest(".card")?.classList.add("cart-added");
@@ -184,6 +197,7 @@ function openCheckout(item) {
   $("checkout-name").textContent = item.name;
   $("checkout-price").textContent = `${Number(item.price).toFixed(2)} USDT за штуку · в наличии ${item.stock}`;
   $("checkout-description").textContent = item.description || "Описание отсутствует";
+  loadReviews(item.id);
   checkoutNode.hidden = false;
   document.body.classList.add("checkout-open");
   updateCheckout();
@@ -211,6 +225,20 @@ function closeCheckout() {
   checkoutNode.hidden = true;
   document.body.classList.remove("checkout-open");
   selected = null;
+}
+
+async function loadReviews(catId) {
+  const node = $("checkout-reviews");
+  node.innerHTML = "<span class=\"muted\">Загрузка отзывов...</span>";
+  try {
+    const data = await api(`/api/reviews?cat_id=${encodeURIComponent(catId)}`);
+    const rating = data.count ? `★ ${Number(data.rating).toFixed(1)} · ${data.count} отзывов` : "Отзывов пока нет";
+    node.innerHTML = `<strong>${rating}</strong>` + (data.reviews?.length
+      ? data.reviews.slice(0, 3).map((review) => `<p>★ ${Number(review.rating)} ${escapeHtml(review.text)}</p>`).join("")
+      : "");
+  } catch {
+    node.textContent = "Отзывы временно недоступны.";
+  }
 }
 
 function changeQuantity(delta) {
@@ -254,6 +282,7 @@ async function applyPromo(input, output) {
       input.value = "";
       loadProfile();
       showToast("Промокод применён");
+      haptic("success");
       return;
     }
     activePromo = result;
@@ -262,6 +291,7 @@ async function applyPromo(input, output) {
     output.textContent = result.message;
     updateCheckout();
     showToast("Промокод применён");
+    haptic("success");
   } catch (error) {
     output.textContent = error.message;
   }
@@ -282,6 +312,8 @@ function submitPurchase(payment) {
     buttons: [{ id: "confirm", type: "default", text: "Подтвердить" }, { id: "cancel", type: "cancel", text: "Отмена" }]
   }, (buttonId) => {
     if (buttonId !== "confirm") return;
+    haptic("medium");
+    showToast("Платёж ожидает подтверждения");
     const payload = {
       action: "purchase",
       payment
@@ -341,6 +373,9 @@ function renderCart() {
   $("cart-total").textContent = `${baseCartTotal().toFixed(2)} USDT`;
   const count = cart.reduce((sum, line) => sum + line.quantity, 0);
   $("cart-count").textContent = count;
+  $("cart-bar").hidden = count < 1;
+  $("cart-bar-count").textContent = count;
+  $("cart-bar-total").textContent = `${baseCartTotal().toFixed(2)} USDT`;
   if (count !== previousCartCount) {
     const countNode = $("cart-count");
     countNode.classList.remove("count-pop");
@@ -385,7 +420,7 @@ async function loadHistory() {
   $("history-status").textContent = "Загрузка...";
   try {
     const data = await api(`/api/history?limit=100&sort=${$("history-sort").value}`);
-    $("history-list").innerHTML = data.history?.length ? data.history.map((entry) => `<article class="history-item"><div><strong>${escapeHtml(entry.product)}</strong><span>${escapeHtml(entry.item_preview || "Товар выдан")}</span></div><time>${formatDate(entry.date)}</time></article>`).join("") : `<div class="empty-state">Покупок пока нет.</div>`;
+    $("history-list").innerHTML = data.history?.length ? data.history.map((entry) => `<article class="history-item"><div><strong>${escapeHtml(entry.product)}</strong><span>${escapeHtml(entry.item_preview || "Товар выдан")}</span></div><div class="history-actions"><time>${formatDate(entry.date)}</time><button class="text-button" data-repeat-cat="${entry.cat_id || ""}" ${entry.cat_id ? "" : "disabled"}>Купить снова</button></div></article>`).join("") : `<div class="empty-state">Покупок пока нет.</div>`;
     $("history-status").textContent = data.history?.length ? `${data.history.length} записей` : "";
   } catch (error) { $("history-status").textContent = error.message; }
 }
@@ -397,6 +432,7 @@ function formatDate(value) {
 }
 
 function setStatus(message) { statusNode.textContent = message; }
+function haptic(style = "light") { try { tg?.HapticFeedback?.impactOccurred(style); } catch {} }
 function showToast(message, type = "default") {
   const container = $("toast-container");
   if (!container) return;
@@ -496,6 +532,9 @@ async function loadCatalog() {
   try {
     const data = await api("/api/catalog");
     categories = data.categories || [];
+    $("product-suggestions").innerHTML = categories
+      .map((item) => `<option value="${escapeHtml(item.name)}"></option>`)
+      .join("");
     const groups = [...new Set(categories.map((item) => item.group || "other"))];
     $("category-filter").innerHTML = `<option value="all">Все категории</option>` + groups.map((group) => `<option value="${escapeHtml(group)}">${escapeHtml(groupTitle(group))}</option>`).join("");
     cart = cart.filter((line) => categories.some((item) => item.id === line.id && item.stock > 0));
