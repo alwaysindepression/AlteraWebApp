@@ -36,13 +36,16 @@ $("waiting-open").addEventListener("click", () => pendingPayment && openPaymentL
 $("waiting-copy").addEventListener("click", () => pendingPayment && copyText(pendingPayment.pay_url)
   .then(() => showToast("Ссылка скопирована")).catch(() => showToast("Не удалось скопировать ссылку", "error")));
 $("waiting-check").addEventListener("click", () => pendingPayment && checkPurchasePayment(true));
-$("checkout-deposit").addEventListener("click", () => {
-  closeCheckout();
-  showView("profile-view");
-  $("deposit-amount").focus();
-});
 $("show-favorites").addEventListener("click", () => showView("favorites-view"));
 $("product-back").addEventListener("click", () => showView("catalog-view"));
+$("how-it-works-button").addEventListener("click", () => {
+  $("how-it-works-modal").hidden = false;
+  $("how-it-works-close").focus();
+});
+$("how-it-works-close").addEventListener("click", () => { $("how-it-works-modal").hidden = true; });
+$("how-it-works-modal").addEventListener("click", (event) => {
+  if (event.target === $("how-it-works-modal")) $("how-it-works-modal").hidden = true;
+});
 $("cart-checkout").addEventListener("click", () => openCartCheckout());
 $("cart-bar-open").addEventListener("click", () => openCartCheckout());
 $("refresh-catalog").addEventListener("click", () => {
@@ -98,11 +101,16 @@ document.body.addEventListener("click", (event) => {
 });
 catalogNode.addEventListener("click", handleCatalogClick);
 $("product-detail").addEventListener("click", handleCatalogClick);
+$("favorites-list").addEventListener("click", handleCatalogClick);
 $("cart-list").addEventListener("click", handleCartClick);
 checkoutNode.addEventListener("click", (event) => {
   if (event.target === checkoutNode) closeCheckout();
 });
 document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !$("how-it-works-modal").hidden) {
+    $("how-it-works-modal").hidden = true;
+    return;
+  }
   if (checkoutNode.hidden) return;
   if (event.key === "Escape") {
     event.preventDefault();
@@ -283,7 +291,9 @@ function handleCatalogClick(event) {
   if (event.target.closest("[data-favorite-id]")) return;
   const button = event.target.closest("button[data-id]");
   const card = event.target.closest("[data-product-id]");
-  const item = categories.find((entry) => String(entry.id) === (button?.dataset.id || card?.dataset.productId));
+  const itemId = button?.dataset.id || card?.dataset.productId;
+  const item = categories.find((entry) => String(entry.id) === itemId)
+    || favoriteItems.find((entry) => String(entry.id) === itemId);
   if (!item) return;
   if (!button) { openProductPage(item); return; }
   if (button.classList.contains("cart-add")) {

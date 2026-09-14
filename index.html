@@ -16,6 +16,7 @@
         <h1>Магазин</h1>
         <p class="topbar-subtitle">Проверенные товары с моментальной выдачей</p>
       </div>
+      <button id="how-it-works-button" class="header-help" type="button" aria-label="Как работает магазин">Как это работает?</button>
     </header>
     <section class="home-banner" aria-label="Преимущества магазина">
       <div><span class="banner-kicker">БЫСТРО · БЕЗОПАСНО · 24/7</span><strong>Оплата — выдача автоматически</strong><span>История заказов и поддержка всегда под рукой</span></div>
@@ -59,11 +60,6 @@
       </div>
       <p id="status" class="status">Загрузка каталога...</p>
       <section id="catalog" class="catalog"></section>
-      <section class="info-block">
-        <h2>Как это работает</h2>
-        <div class="steps"><span>1 <b>Выберите товар</b></span><span>2 <b>Оплатите</b></span><span>3 <b>Получите автоматически</b></span></div>
-      </section>
-
       <section id="product-view" class="view" hidden aria-labelledby="product-title">
         <button id="product-back" class="text-button" type="button">← Назад в каталог</button>
         <div id="product-detail" class="product-detail"></div>
@@ -116,12 +112,6 @@
           <input id="promo-input" type="text" maxlength="64" placeholder="Введите код" autocomplete="off">
           <button id="promo-apply" class="accent-button">Применить</button>
         </div>
-        <section class="profile-card guarantees">
-          <div class="profile-card-heading"><strong>Гарантии ALTERA</strong><span>Безопасная покупка</span></div>
-          <p>✓ Моментальная выдача после подтверждения оплаты</p>
-          <p>✓ Проверка товара перед добавлением в каталог</p>
-          <p>✓ Поддержка по заказу через раздел «Поддержка»</p>
-        </section>
         <p id="promo-status" class="form-status"></p>
       </div>
     </section>
@@ -174,7 +164,6 @@
         <button id="pay-xrocket" class="pay-button secondary">Оплатить через xRocket</button>
         <button id="pay-stars" class="pay-button secondary">Оплатить через Telegram Stars</button>
       </div>
-      <button id="checkout-deposit" class="checkout-deposit" type="button">Пополнить баланс на недостающую сумму</button>
       <section id="payment-waiting" class="payment-waiting" hidden aria-live="polite">
         <div class="waiting-heading"><span class="waiting-icon" aria-hidden="true">◷</span><div><strong>Ожидаем оплату</strong><span id="waiting-order">Счёт xRocket создан</span></div></div>
         <img id="payment-qr" class="payment-qr" alt="QR-код для оплаты xRocket">
@@ -184,6 +173,12 @@
       </section>
     </div>
   </section>
-  <script src="./app.js?v=25"></script>
+  <section id="how-it-works-modal" class="info-modal" hidden aria-modal="true" role="dialog" aria-labelledby="how-it-works-title">
+    <div class="info-modal-dialog">
+      <div class="checkout-header"><h2 id="how-it-works-title">Как это работает?</h2><button id="how-it-works-close" class="modal-close" type="button" aria-label="Закрыть">×</button></div>
+      <div class="steps"><span>1 <b>Выберите товар</b><small>Откройте карточку и нажмите «Купить» или добавьте товар в корзину.</small></span><span>2 <b>Оплатите</b><small>Выберите баланс, xRocket или Telegram Stars.</small></span><span>3 <b>Получите автоматически</b><small>После подтверждения оплаты данные появятся в истории заказа.</small></span></div>
+    </div>
+  </section>
+  <script src="./app.js?v=26"></script>
 </body>
 </html>

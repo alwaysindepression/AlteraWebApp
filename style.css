@@ -32,6 +32,7 @@ button { cursor: pointer; }
 .catalog-intro h2 { font-size: 24px; }
 .topbar, .section-heading, .meta, .card-top, .cart-line, .profile-main, .stats { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .topbar { align-items: flex-start; margin-bottom: 24px; }
+.header-help { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; background: var(--panel); color: var(--text); font-size: 12px; font-weight: 700; }
 .eyebrow { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .18em; margin: 0 0 5px; }
 h1, h2, h3, p { margin-top: 0; }
 h1 { margin-bottom: 0; font-size: 32px; letter-spacing: -.05em; }
@@ -115,10 +116,13 @@ select {
 .product-rating { margin: -8px 0 14px; color: #f6d87a; font-size: 12px; }
 .product-rating span { color: var(--muted); }
 .price { font-size: 19px; font-weight: 800; }
+.meta .price { flex: 0 0 auto; }
+.meta .card-actions { flex: 1 1 auto; min-width: 0; }
 .price small { color: var(--muted); font-size: 11px; font-weight: 600; }
-.card-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.card-actions { display: flex; flex-wrap: nowrap; gap: 6px; }
 .buy, .cart-add, .details, .accent-button, .primary-button, .pay-button { border: 0; border-radius: 10px; padding: 10px 13px; font-weight: 750; }
 .details { border: 1px solid var(--line); background: var(--soft); color: var(--text); }
+.card-actions button { flex: 1 1 0; min-width: 0; white-space: nowrap; padding: 9px 6px; font-size: 12px; }
 .buy, .primary-button, .accent-button { background: var(--text); color: #0b0b0d; }
 .cart-add { border: 1px solid #55555c; background: transparent; color: var(--text); transition: background .2s, border-color .2s, transform .2s; }
 .cart-add.is-added { background: var(--text); border-color: var(--text); color: #0b0b0d; animation: button-added .35s ease-out; }
@@ -187,6 +191,7 @@ button.is-loading::after { content: ""; position: absolute; width: 1em; height: 
 .steps { display: grid; gap: 9px; color: var(--muted); }
 .steps span { padding: 10px 12px; border-radius: 10px; background: var(--soft); }
 .steps b { color: var(--text); margin-left: 6px; }
+.steps small { display: block; margin: 5px 0 0 25px; color: var(--muted); font-size: 12px; }
 .guarantees p { margin: 9px 0 0; color: var(--muted); font-size: 13px; }
 .history-actions { display: grid; justify-items: end; gap: 4px; }
 .history-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 9px; }
@@ -210,7 +215,6 @@ button.is-loading::after { content: ""; position: absolute; width: 1em; height: 
 .checkout-summary { display: grid; gap: 4px; margin: 12px 0; padding: 12px 13px; border: 1px solid var(--line); border-radius: 11px; background: var(--panel); color: var(--muted); font-size: 13px; }
 .checkout-summary span:first-child { color: var(--text); font-weight: 700; }
 .checkout-shortage { color: #f4d37c !important; }
-.checkout-deposit { width: 100%; margin-top: 9px; border: 0; background: transparent; color: var(--green); padding: 8px; font-size: 12px; }
 .payment-options { display: grid; gap: 9px; }
 .pay-button { width: 100%; background: transparent; border: 1px solid #777780; color: var(--text); }
 .pay-button.secondary { border-color: var(--line); color: var(--text); }
@@ -228,6 +232,8 @@ button.is-loading::after { content: ""; position: absolute; width: 1em; height: 
 .waiting-details span:last-child { color: #9bdcff; }
 .waiting-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
 .waiting-actions button:first-child { grid-column: 1 / -1; }
+.info-modal { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 20px; background: var(--overlay); }
+.info-modal-dialog { width: min(100%, 520px); padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); box-shadow: 0 25px 80px #0008; }
 .toast-container { position: fixed; z-index: 30; right: 16px; bottom: 18px; left: 16px; display: grid; justify-items: center; gap: 8px; pointer-events: none; }
 .toast { max-width: min(100%, 420px); padding: 11px 15px; border: 1px solid #45454d; border-radius: 12px; background: #242429; color: var(--text); box-shadow: 0 8px 30px #0009; opacity: 0; transform: translateY(12px); transition: opacity .2s, transform .2s; font-size: 13px; }
 .toast-visible { opacity: 1; transform: translateY(0); }
