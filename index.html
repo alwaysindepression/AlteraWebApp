@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#050505">
   <title>ALTERA STORE</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="./style.css?v=18">
+  <link rel="stylesheet" href="./style.css?v=23">
 </head>
 <body>
   <main class="app">
@@ -18,11 +18,6 @@
       </div>
       <button id="how-it-works-button" class="header-help" type="button" aria-label="Как работает магазин">Как это работает?</button>
     </header>
-    <section class="home-banner" aria-label="Преимущества магазина">
-      <div><span class="banner-kicker">БЫСТРО · БЕЗОПАСНО · 24/7</span><strong>Оплата — выдача автоматически</strong><span>История заказов и поддержка всегда под рукой</span></div>
-      <span class="banner-mark" aria-hidden="true">✦</span>
-    </section>
-
     <nav class="tabs" aria-label="Разделы магазина">
       <button class="tab active" data-view="catalog-view" aria-controls="catalog-view">Каталог</button>
       <button class="tab" data-view="history-view" aria-controls="history-view">Покупки</button>
@@ -32,6 +27,10 @@
     </nav>
 
     <section id="catalog-view" class="view active-view">
+      <section class="home-banner" aria-label="Преимущества магазина">
+        <div><span class="banner-kicker">БЫСТРО · БЕЗОПАСНО · 24/7</span><strong>Оплата — выдача автоматически</strong><span>История заказов и поддержка всегда под рукой</span></div>
+        <span class="banner-mark" aria-hidden="true">✦</span>
+      </section>
       <div class="catalog-intro"><div><p class="eyebrow">ВЫБЕРИТЕ СВОЙ ТОВАР</p><h2>Популярное и новое</h2></div><button id="show-favorites" class="text-button" type="button">♡ Избранное</button></div>
       <div class="toolbar">
         <div class="search-row">
@@ -62,11 +61,11 @@
       </div>
       <p id="status" class="status">Загрузка каталога...</p>
       <section id="catalog" class="catalog"></section>
-      <section id="product-view" class="view" hidden aria-labelledby="product-title">
-        <button id="product-back" class="text-button" type="button">← Назад в каталог</button>
-        <div id="product-detail" class="product-detail"></div>
-      </section>
+    </section>
 
+    <section id="product-view" class="view" hidden aria-labelledby="product-title">
+      <button id="product-back" class="text-button" type="button">← Назад в каталог</button>
+      <div id="product-detail" class="product-detail"></div>
     </section>
 
     <section id="favorites-view" class="view" hidden aria-labelledby="favorites-title">
@@ -186,6 +185,6 @@
   <section id="purchase-success" class="info-modal" hidden aria-modal="true" role="dialog" aria-labelledby="success-title">
     <div class="info-modal-dialog success-dialog"><div class="checkout-header"><h2 id="success-title">Покупка успешна</h2><button id="success-close" class="modal-close" type="button" aria-label="Закрыть">×</button></div><p class="success-mark" aria-hidden="true">✓</p><p id="success-order" class="status"></p><pre id="success-items" class="success-items"></pre><div class="product-actions"><button id="success-history" class="primary-button" type="button">Открыть покупки</button><button id="success-copy" class="secondary-button" type="button">Скопировать товар</button></div></div>
   </section>
-  <script src="./app.js?v=28"></script>
+  <script src="./app.js?v=31"></script>
 </body>
 </html>

@@ -619,21 +619,22 @@ function showPaymentWaiting(result) {
       $("waiting-check").disabled = true;
     }
 
-    function showSuccessScreen(orderNumber, itemText) {
-      closeCheckout();
-      $("success-order").textContent = orderNumber ? `Заказ ${orderNumber} оплачен и выдан.` : "Заказ оплачен.";
-      $("success-items").textContent = itemText || "Товар доступен в разделе «Покупки».";
-      $("purchase-success").hidden = false;
-      $("success-close").focus();
-    }
-
-    function closeSuccess() {
-      $("purchase-success").hidden = true;
-    }
   }, 1000);
   $("waiting-check").disabled = false;
   $("waiting-check").classList.remove("is-loading");
   $("waiting-expiry").textContent = "Счёт действует 30 минут";
+}
+
+function showSuccessScreen(orderNumber, itemText) {
+  closeCheckout();
+  $("success-order").textContent = orderNumber ? `Заказ ${orderNumber} оплачен и выдан.` : "Заказ оплачен.";
+  $("success-items").textContent = itemText || "Товар доступен в разделе «Покупки».";
+  $("purchase-success").hidden = false;
+  $("success-close").focus();
+}
+
+function closeSuccess() {
+  $("purchase-success").hidden = true;
 }
 
 async function checkPurchasePayment(manual = false) {
