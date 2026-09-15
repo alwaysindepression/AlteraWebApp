@@ -53,6 +53,8 @@ h2 { margin-bottom: 0; font-size: 22px; letter-spacing: -.03em; }
 .tab { display: inline-flex; align-items: center; justify-content: center; gap: 5px; flex: 1 1 0; min-width: 0; border-radius: 11px; padding: 10px 6px; text-align: center; }
 .tab.active { background: var(--soft); }
 .cart-tab span[hidden] { display: none; }
+.tab, button { -webkit-tap-highlight-color: transparent; }
+.tab:focus:not(:focus-visible), button:focus:not(:focus-visible) { outline: none; box-shadow: none; }
 .tab:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .cart-tab #cart-count { display: none !important; }
 .count-pop { animation: count-pop .32s ease-out; }
@@ -182,6 +184,7 @@ button.is-loading::after { content: ""; position: absolute; width: 1em; height: 
 .profile-purchases-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--text); color: #10120b; font-size: 21px; }
 .profile-purchases-arrow { color: var(--muted); font-size: 25px; }
 .profile-avatar { display: grid; place-items: center; overflow: hidden; width: 48px; height: 48px; border-radius: 15px; background: var(--green); color: #11150b; font-size: 20px; font-weight: 850; }
+.profile-main { justify-content: flex-start; }
 .profile-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .profile-main h3 { margin: 0; font-size: 18px; }
 .profile-main span, .promo-box span { color: var(--muted); font-size: 12px; }

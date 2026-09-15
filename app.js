@@ -293,7 +293,7 @@ function renderCatalog() {
   });
   const popular = [...visible].sort((a, b) => Number(b.reviews_count || 0) - Number(a.reviews_count || 0)).slice(0, 3);
   const newItems = [...visible].sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 3);
-  const featured = (title, items) => items.length ? `<section class="featured-section"><div class="section-heading"><h2>${title}</h2><span class="muted">${items.length} товара</span></div><div class="group-items">${items.map(cardTemplate).join("")}</div></section>` : "";
+  const featured = (title, items) => items.length ? `<section class="featured-section"><div class="section-heading"><h2>${title}</h2></div><div class="group-items">${items.map(cardTemplate).join("")}</div></section>` : "";
   catalogNode.innerHTML = visible.length ? featured("Популярное", popular) + featured("Новинки", newItems) + [...groups.entries()].map(([key, items]) => `
     <section class="catalog-group">
       <h2 class="group-title">${escapeHtml(groupTitle(key))}</h2>
