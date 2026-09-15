@@ -58,7 +58,27 @@ $("checkout-promo-apply").addEventListener("click", () => applyPromo($("checkout
 $("search").addEventListener("input", renderCatalog);
 $("category-filter").addEventListener("change", renderCatalog);
 $("sort").addEventListener("change", renderCatalog);
+$("stock-filter").addEventListener("change", renderCatalog);
 $("history-sort").addEventListener("change", loadHistory);
+$("favorites-sort").addEventListener("change", loadFavorites);
+$("favorites-stock-filter").addEventListener("change", loadFavorites);
+$("cart-clear").addEventListener("click", () => { cart = []; saveCart(); renderCart(); showToast("Корзина очищена"); });
+$("favorites-buy-all").addEventListener("click", () => {
+  const available = favoriteItems.filter((item) => item.stock > 0);
+  if (!available.length) return showToast("В избранном нет товаров в наличии", "error");
+  available.forEach((item) => addToCart(item.id));
+  showView("cart-view");
+  showToast("Доступные товары добавлены в корзину");
+});
+$("favorites-remove-all").addEventListener("click", async () => {
+  if (!favoriteItems.length) return;
+  for (const item of favoriteItems) await api("/api/favorites", { method: "POST", body: JSON.stringify({ cat_id: item.id, remove: true }) });
+  loadFavorites();
+  showToast("Избранное очищено");
+});
+$("success-close").addEventListener("click", closeSuccess);
+$("success-history").addEventListener("click", () => { closeSuccess(); showView("history-view"); });
+$("success-copy").addEventListener("click", () => copyText($("success-items").textContent).then(() => showToast("Товар скопирован")));
 document.querySelectorAll(".amount-option").forEach((button) => button.addEventListener("click", () => {
   $("deposit-amount").value = button.dataset.amount;
   document.querySelectorAll(".amount-option").forEach((option) => option.classList.toggle("active", option === button));
@@ -69,7 +89,7 @@ document.querySelectorAll(".provider-option").forEach((button) => button.addEven
   $("deposit-submit").textContent = `Пополнить через ${depositProvider === "stars" ? "Telegram Stars" : "xRocket"}`;
 }));
 $("deposit-submit").addEventListener("click", startDeposit);
-document.body.addEventListener("click", (event) => {
+document.body.addEventListener("click", async (event) => {
   const copyButton = event.target.closest("[data-copy]");
   if (!copyButton) return;
   copyText(copyButton.dataset.copy)
@@ -77,7 +97,7 @@ document.body.addEventListener("click", (event) => {
     .catch(() => showToast("Не удалось скопировать ссылку", "error"));
 });
 document.querySelectorAll(".tab").forEach((tab) => tab.addEventListener("click", () => showView(tab.dataset.view)));
-document.body.addEventListener("click", (event) => {
+document.body.addEventListener("click", async (event) => {
   const viewButton = event.target.closest("[data-view]");
   if (viewButton && !viewButton.classList.contains("tab")) showView(viewButton.dataset.view);
   const repeatButton = event.target.closest("[data-repeat-cat]");
@@ -95,7 +115,10 @@ document.body.addEventListener("click", (event) => {
     if (orderAction.dataset.orderAction === "support") {
       showToast(`Напишите в поддержку бота и укажите заказ ${orderAction.dataset.orderNumber || ""}`);
     } else if (orderAction.dataset.orderAction === "receive") {
-      showToast("Товар уже выдан после подтверждения оплаты");
+      try {
+        const result = await api("/api/history/item", { method: "POST", body: JSON.stringify({ history_id: Number(orderAction.dataset.historyId) }) });
+        showSuccessScreen(orderAction.dataset.orderNumber, result.item);
+      } catch (error) { showToast(error.message, "error"); }
     }
   }
 });
@@ -215,11 +238,21 @@ async function openProductPage(item) {
       <section class="product-section"><h2>Описание</h2><p>${escapeHtml(product.description || "Описание отсутствует.")}</p></section>
       <section class="product-section"><h2>Как это работает</h2><ol><li>Выберите количество и способ оплаты.</li><li>После подтверждения платежа товар выдаётся автоматически.</li><li>Данные заказа сохраняются в разделе «Покупки».</li></ol></section>
       <section class="product-section"><h2>Ограничения</h2><p class="product-warning">Проверьте описание товара перед оплатой. Цифровые товары после выдачи возврату не подлежат, кроме случаев ошибки выдачи.</p></section>
-      <section class="product-section"><h2>Отзывы</h2>${reviews.length ? reviews.map((review) => `<p class="review-line">★ ${Number(review.rating)} ${escapeHtml(review.text || "")}</p>`).join("") : `<p class="muted">Отзывов пока нет.</p>`}</section>
+      <section class="product-section"><h2>Отзывы</h2>${reviews.length ? reviews.map((review) => `<p class="review-line">★ ${Number(review.rating)} ${escapeHtml(review.text || "")}</p>`).join("") : `<p class="muted">Отзывов пока нет.</p>`}<div class="review-form"><label>Ваша оценка <select id="review-rating"><option value="5">★★★★★</option><option value="4">★★★★</option><option value="3">★★★</option><option value="2">★★</option><option value="1">★</option></select></label><textarea id="review-text" maxlength="1000" placeholder="Расскажите о товаре"></textarea><button id="review-submit" class="secondary-button" type="button">Оставить отзыв</button><p id="review-status" class="form-status"></p></div></section>
       <div class="product-actions"><button id="product-buy" class="primary-button" ${product.stock < 1 ? "disabled" : ""}>Купить снова</button><button id="product-cart" class="secondary-button" ${product.stock < 1 ? "disabled" : ""}>В корзину</button></div>
       <section class="product-section"><h2>Похожие товары</h2><div class="similar-products">${categories.filter((entry) => entry.id !== product.id && entry.group === product.group).slice(0, 3).map(cardTemplate).join("") || `<p class="muted">Похожих товаров пока нет.</p>`}</div></section>`;
     $("product-buy").addEventListener("click", () => openCheckout(product));
     $("product-cart").addEventListener("click", () => { addToCart(product.id); showToast("Товар добавлен в корзину"); });
+    $("review-submit").addEventListener("click", async () => {
+      const button = $("review-submit");
+      button.disabled = true;
+      try {
+        const result = await api("/api/reviews", { method: "POST", body: JSON.stringify({ cat_id: product.id, rating: Number($("review-rating").value), text: $("review-text").value }) });
+        $("review-status").textContent = result.message;
+        loadReviews(product.id);
+      } catch (error) { $("review-status").textContent = error.message; }
+      finally { button.disabled = false; }
+    });
   } catch (error) {
     node.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
   }
@@ -228,9 +261,11 @@ async function openProductPage(item) {
 function renderCatalog() {
   const query = $("search").value.trim().toLowerCase();
   const group = $("category-filter").value;
+  const stockFilter = $("stock-filter").value;
   const sort = $("sort").value;
   let visible = categories.filter((item) =>
     (group === "all" || (item.group || "other") === group) &&
+    (stockFilter !== "in-stock" || item.stock > 0) &&
     `${item.name} ${item.description}`.toLowerCase().includes(query)
   );
   visible.sort((a, b) => {
@@ -238,6 +273,7 @@ function renderCatalog() {
     if (sort === "price-desc") return Number(b.price) - Number(a.price);
     if (sort === "name") return a.name.localeCompare(b.name, "ru");
     if (sort === "stock") return Number(b.stock) - Number(a.stock);
+    if (sort === "rating") return Number(b.rating) - Number(a.rating);
     return Number(a.id) - Number(b.id);
   });
   const groups = new Map();
@@ -337,6 +373,11 @@ function openCheckout(item) {
 
 function openCartCheckout() {
   if (!cart.length) return;
+  const unavailable = cart.some((line) => {
+    const item = categories.find((entry) => entry.id === line.id);
+    return !item || item.stock < 1 || line.quantity > item.stock;
+  });
+  if (unavailable) return showToast("Уберите недоступные товары из корзины", "error");
   selected = null;
   checkoutReturnFocus = document.activeElement;
   checkoutRequestKey = crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -509,15 +550,8 @@ function submitPurchase(payment) {
         closeCheckout();
         loadProfile();
         loadHistory();
-        showToast("Покупка оплачена с баланса");
         const itemText = (result.items || []).map((item) => item.data).join("\n");
-        if (itemText) {
-          tg.showPopup({
-            title: "Ваш товар",
-            message: itemText.slice(0, 3900),
-            buttons: [{ id: "ok", type: "default", text: "Готово" }]
-          });
-        }
+        showSuccessScreen(result.order_number, itemText);
         haptic("success");
         return;
       }
@@ -535,7 +569,7 @@ function submitPurchase(payment) {
         tg.openInvoice(result.invoice_link, (invoiceStatus) => {
           if (invoiceStatus === "paid") {
             closeCheckout();
-            showToast("Оплата Telegram Stars подтверждена");
+            showSuccessScreen(result.order_number, "Товар будет доступен в истории покупок после подтверждения.");
             loadProfile();
             loadHistory();
             haptic("success");
@@ -583,6 +617,18 @@ function showPaymentWaiting(result) {
       clearInterval(purchaseExpiryTimer);
       $("waiting-indicator").textContent = "● Счёт больше не принимается";
       $("waiting-check").disabled = true;
+    }
+
+    function showSuccessScreen(orderNumber, itemText) {
+      closeCheckout();
+      $("success-order").textContent = orderNumber ? `Заказ ${orderNumber} оплачен и выдан.` : "Заказ оплачен.";
+      $("success-items").textContent = itemText || "Товар доступен в разделе «Покупки».";
+      $("purchase-success").hidden = false;
+      $("success-close").focus();
+    }
+
+    function closeSuccess() {
+      $("purchase-success").hidden = true;
     }
   }, 1000);
   $("waiting-check").disabled = false;
@@ -653,8 +699,9 @@ function addToCart(id, count = 1) {
   const item = categories.find((entry) => entry.id === id);
   if (!item) return;
   const line = cart.find((entry) => entry.id === id);
+  if (!item.stock) return showToast("Товар закончился", "error");
   if (line) line.quantity = Math.min(item.stock, line.quantity + count);
-  else cart.push({ id, quantity: Math.min(item.stock, count) });
+  else cart.push({ id, quantity: Math.min(item.stock, count), price: Number(item.price) });
   saveCart();
   renderCart();
 }
@@ -678,13 +725,20 @@ function renderCart() {
   list.innerHTML = cart.map((line) => {
     const item = categories.find((entry) => entry.id === line.id);
     if (!item) return "";
-    return `<article class="cart-line"><div><strong>${escapeHtml(item.name)}</strong><span>${Number(item.price).toFixed(2)} USDT</span></div>
+    const unavailable = item.stock < 1;
+    const priceChanged = line.price != null && Number(line.price) !== Number(item.price);
+    return `<article class="cart-line ${unavailable ? "is-unavailable" : ""}"><div><strong>${escapeHtml(item.name)}</strong><span>${Number(item.price).toFixed(2)} USDT</span>${priceChanged ? `<em class="cart-warning">Цена изменилась с ${Number(line.price).toFixed(2)} USDT</em>` : ""}${unavailable ? `<em class="cart-warning">Нет в наличии</em>` : ""}</div>
       <div class="cart-controls"><button data-action="minus" data-id="${item.id}">−</button><b>${line.quantity}</b><button data-action="plus" data-id="${item.id}">+</button><button class="remove" data-action="remove" data-id="${item.id}">Удалить</button></div></article>`;
   }).join("");
   const hasItems = cart.length > 0;
   $("cart-empty").hidden = hasItems;
   $("cart-summary").hidden = !hasItems;
-  $("cart-total").textContent = `${baseCartTotal().toFixed(2)} USDT`;
+  const baseTotal = cart.reduce((sum, line) => {
+    const item = categories.find((entry) => entry.id === line.id);
+    return sum + (item ? Number(item.price) * line.quantity : 0);
+  }, 0);
+  const total = baseCartTotal();
+  $("cart-total").innerHTML = `${total.toFixed(2)} USDT${baseTotal > total ? ` <small class="saving">Экономия ${(baseTotal - total).toFixed(2)} USDT</small>` : ""}`;
   const count = cart.reduce((sum, line) => sum + line.quantity, 0);
   $("cart-count").textContent = count;
   $("cart-bar").hidden = count < 1;
@@ -702,7 +756,7 @@ function renderCart() {
 function baseCartTotal() {
   return cart.reduce((sum, line) => {
     const item = categories.find((entry) => entry.id === line.id);
-    return sum + (item ? lineTotal(item, line.quantity) : 0);
+    return sum + (item && item.stock > 0 ? lineTotal(item, Math.min(line.quantity, item.stock)) : 0);
   }, 0);
 }
 
@@ -718,7 +772,7 @@ async function loadProfile() {
     currentBalance = Number(data.balance);
     const user = data.user || {};
     $("profile-card").innerHTML = `<div class="profile-main"><div class="profile-avatar">${escapeHtml((user.first_name || user.username || "?").slice(0, 1).toUpperCase())}</div><div><h3>${escapeHtml([user.first_name, user.last_name].filter(Boolean).join(" ") || "Пользователь")}</h3><span>${user.username ? "@" + escapeHtml(user.username) : "ID " + user.id}</span></div></div>
-      <div class="stats"><div><strong>${Number(data.balance).toFixed(2)}</strong><span>USDT на балансе</span></div><div><strong>${data.purchases || 0}</strong><span>товаров куплено</span></div><div><strong>${data.referrals?.count || 0}</strong><span>рефералов</span></div></div>`;
+      <div class="stats"><div><strong>${Number(data.balance).toFixed(2)}</strong><span>USDT на балансе</span></div><div><strong>${data.purchases || 0}</strong><span>товаров куплено</span></div><div><strong>${Number(data.total_spent || 0).toFixed(2)}</strong><span>USDT потрачено</span></div><div><strong>${data.referrals?.count || 0}</strong><span>рефералов</span></div></div><p class="profile-date">Регистрация: ${formatDate(data.created_at)}</p>`;
     const referrals = data.referrals || {};
     const referralLink = referrals.link || "";
     $("referral-card").innerHTML = `<div class="profile-card-heading"><strong>Реферальная программа</strong><span>Получайте 10% с покупок друзей</span></div>
@@ -739,7 +793,7 @@ async function loadHistory() {
     $("history-list").innerHTML = data.history?.length ? data.history.map((entry) => {
       const status = entry.status || "delivered";
       const method = entry.payment_method === "xrocket" ? "xRocket" : entry.payment_method === "stars" ? "Telegram Stars" : "Баланс";
-      return `<article class="history-item"><div><strong>${escapeHtml(entry.product)}</strong><span>${escapeHtml(entry.item_preview || "Товар выдан")}</span><span class="history-meta"><b>${escapeHtml(entry.order_number || "Заказ")}</b> · ${method} · ${Number(entry.amount || 0).toFixed(2)} USDT</span></div><div class="history-actions"><time>${formatDate(entry.date)}</time><span class="order-status status-${escapeHtml(status)}">${statusLabel(status)}</span><div class="history-buttons"><button class="text-button" data-order-action="receive" ${status === "fulfilled" || status === "delivered" ? "" : "disabled"}>Получить товар</button><button class="text-button" data-repeat-cat="${entry.cat_id || ""}" ${entry.cat_id ? "" : "disabled"}>Повторить покупку</button><button class="text-button support-button" data-order-action="support" data-order-number="${escapeHtml(entry.order_number || "")}">Проблема с заказом</button></div></div></article>`;
+      return `<article class="history-item"><div><strong>${escapeHtml(entry.product)}</strong><span>${escapeHtml(entry.item_preview || "Товар выдан")}</span><span class="history-meta"><b>${escapeHtml(entry.order_number || "Заказ")}</b> · ${method} · ${Number(entry.amount || 0).toFixed(2)} USDT</span></div><div class="history-actions"><time>${formatDate(entry.date)}</time><span class="order-status status-${escapeHtml(status)}">${statusLabel(status)}</span><div class="history-buttons"><button class="text-button" data-order-action="receive" data-history-id="${entry.id}" data-order-number="${escapeHtml(entry.order_number || "")}" ${status === "fulfilled" || status === "delivered" ? "" : "disabled"}>Получить товар</button><button class="text-button" data-repeat-cat="${entry.cat_id || ""}" ${entry.cat_id ? "" : "disabled"}>Повторить покупку</button><button class="text-button support-button" data-order-action="support" data-order-number="${escapeHtml(entry.order_number || "")}">Проблема с заказом</button></div></div></article>`;
     }).join("") : `<div class="empty-state">Покупок пока нет.</div>`;
     $("history-status").textContent = data.history?.length ? `${data.history.length} записей` : "";
   } catch (error) { $("history-status").textContent = error.message; }
@@ -755,14 +809,21 @@ async function loadFavorites() {
   try {
     const data = await api("/api/favorites");
     favoriteItems = data.favorites || [];
-    $("favorites-list").innerHTML = favoriteItems.length
-      ? `<div class="group-items">${favoriteItems.map((item) => `${cardTemplate({...item, favorite: true, description: "Сохранённый товар"})}
+    const stockFilter = $("favorites-stock-filter").value;
+    const sort = $("favorites-sort").value;
+    const visible = favoriteItems.filter((item) => stockFilter !== "in-stock" || item.stock > 0).sort((a, b) => {
+      if (sort === "price-asc") return Number(a.price) - Number(b.price);
+      if (sort === "price-desc") return Number(b.price) - Number(a.price);
+      return Number(b.id) - Number(a.id);
+    });
+    $("favorites-list").innerHTML = visible.length
+      ? `<div class="group-items">${visible.map((item) => `${cardTemplate({...item, favorite: true, description: "Сохранённый товар"})}
         <div class="favorite-notifications">
           <button type="button" class="notification-toggle ${item.notify_price ? "active" : ""}" data-favorite-notify="price" data-id="${item.id}" aria-pressed="${item.notify_price ? "true" : "false"}">Цена ${item.notify_price ? "включена" : "выключена"}</button>
           <button type="button" class="notification-toggle ${item.notify_stock ? "active" : ""}" data-favorite-notify="stock" data-id="${item.id}" aria-pressed="${item.notify_stock ? "true" : "false"}">Наличие ${item.notify_stock ? "включено" : "выключено"}</button>
         </div>`).join("")}</div>`
       : `<div class="empty-state">Сохранённых товаров пока нет.<br>Нажмите ♡ в карточке товара.</div>`;
-    $("favorites-status").textContent = favoriteItems.length ? `${favoriteItems.length} товаров` : "";
+    $("favorites-status").textContent = visible.length ? `${visible.length} товаров` : "Нет подходящих товаров";
   } catch (error) { $("favorites-status").textContent = error.message; }
 }
 
@@ -775,8 +836,8 @@ async function toggleFavorite(catId, button) {
   button.disabled = true;
   try {
     await api("/api/favorites", {
-      method: isFavorite ? "DELETE" : "POST",
-      body: JSON.stringify({ cat_id: catId }),
+      method: "POST",
+      body: JSON.stringify({ cat_id: catId, remove: isFavorite }),
     });
     const item = categories.find((entry) => entry.id === catId);
     if (item) item.favorite = !isFavorite;
@@ -946,8 +1007,8 @@ async function loadCatalog() {
       .join("");
     const groups = [...new Set(categories.map((item) => item.group || "other"))];
     $("category-filter").innerHTML = `<option value="all">Все категории</option>` + groups.map((group) => `<option value="${escapeHtml(group)}">${escapeHtml(groupTitle(group))}</option>`).join("");
-    cart = cart.filter((line) => categories.some((item) => item.id === line.id && item.stock > 0));
-    cart.forEach((line) => { const item = categories.find((entry) => entry.id === line.id); line.quantity = Math.min(line.quantity, item.stock); });
+    cart = cart.filter((line) => categories.some((item) => item.id === line.id));
+    cart.forEach((line) => { const item = categories.find((entry) => entry.id === line.id); if (item.stock > 0) line.quantity = Math.min(line.quantity, item.stock); });
     saveCart();
     renderCatalog();
     renderCart();
