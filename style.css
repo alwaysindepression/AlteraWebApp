@@ -181,7 +181,8 @@ button.is-loading::after { content: ""; position: absolute; width: 1em; height: 
 .profile-purchases-card small { color: var(--muted); font-size: 12px; }
 .profile-purchases-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--text); color: #10120b; font-size: 21px; }
 .profile-purchases-arrow { color: var(--muted); font-size: 25px; }
-.profile-avatar { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 15px; background: var(--green); color: #11150b; font-size: 20px; font-weight: 850; }
+.profile-avatar { display: grid; place-items: center; overflow: hidden; width: 48px; height: 48px; border-radius: 15px; background: var(--green); color: #11150b; font-size: 20px; font-weight: 850; }
+.profile-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .profile-main h3 { margin: 0; font-size: 18px; }
 .profile-main span, .promo-box span { color: var(--muted); font-size: 12px; }
 .stats { align-items: stretch; margin-top: 22px; gap: 8px; }
@@ -289,7 +290,10 @@ button.is-loading::after { content: ""; position: absolute; width: 1em; height: 
 .toast-visible { opacity: 1; transform: translateY(0); }
 .toast-error { border-color: #a95d5d; }
 @media (max-width: 520px) {
-  .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filters { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+  .filters .filter-field { gap: 4px; }
+  .filters .filter-field span { font-size: 9px; }
+  .filters select { min-height: 36px; padding: 8px 5px; font-size: 10px; }
   .meta { align-items: flex-end; }
   .card-actions { flex-direction: row; }
   .card-actions button { padding: 8px 5px; font-size: 11px; }
