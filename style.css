@@ -54,8 +54,7 @@ h2 { margin-bottom: 0; font-size: 22px; letter-spacing: -.03em; }
 .tab.active { background: var(--soft); }
 .cart-tab span[hidden] { display: none; }
 .tab:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-.cart-tab { position: relative; }
-.cart-tab #cart-count { position: absolute; top: 50%; right: 8px; display: inline-grid; place-items: center; min-width: 19px; height: 19px; margin: 0; padding: 0 5px; background: var(--text); color: #10120b; border-radius: 10px; font-size: 11px; font-weight: 800; transform: translateY(-50%); }
+.cart-tab #cart-count { display: none !important; }
 .count-pop { animation: count-pop .32s ease-out; }
 @keyframes count-pop { 50% { transform: scale(1.35); } }
 .toolbar { display: grid; gap: 10px; }
@@ -72,9 +71,9 @@ h2 { margin-bottom: 0; font-size: 22px; letter-spacing: -.03em; }
 .filter-field { display: grid; gap: 6px; min-width: 0; }
 .favorites-panel { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin: -4px 0 14px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
 .favorites-tools { display: flex; align-items: end; gap: 8px; min-width: 0; flex: 1; }
-.favorites-tools label { display: grid; gap: 5px; min-width: 0; }
+.favorites-tools label { display: grid; gap: 5px; min-width: 0; flex: 1 1 0; }
 .favorites-tools label span { color: var(--muted); font-size: 10px; font-weight: 700; }
-.favorites-tools select { width: auto; min-height: 38px; padding: 8px 10px; }
+.favorites-tools select { width: 100%; min-height: 38px; padding: 8px 10px; }
 .favorites-stock-filter { margin: 0; max-width: none; }
 .favorites-actions { display: flex; align-items: center; justify-content: flex-end; gap: 7px; flex-wrap: nowrap; }
 .favorites-actions button { white-space: nowrap; }

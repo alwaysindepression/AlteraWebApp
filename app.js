@@ -742,6 +742,7 @@ function renderCart() {
     const item = categories.find((entry) => entry.id === line.id);
     if (!item) return "";
     const unavailable = item.stock < 1;
+    const priceChanged = line.price != null && Number(line.price) !== Number(item.price);
     const stockChanged = item.stock > 0 && line.quantity > item.stock;
     return `<article class="cart-line ${unavailable ? "is-unavailable" : ""}"><div><strong>${escapeHtml(item.name)}</strong><span>${Number(item.price).toFixed(2)} USDT</span>${priceChanged ? `<em class="cart-warning">Цена изменилась с ${Number(line.price).toFixed(2)} USDT</em>` : ""}${stockChanged ? `<em class="cart-warning">Доступно только ${item.stock} шт.</em>` : ""}${unavailable ? `<em class="cart-warning">Нет в наличии</em>` : ""}</div>
       <div class="cart-controls"><button data-action="minus" data-id="${item.id}" aria-label="Уменьшить количество">−</button><b>${line.quantity}</b><button data-action="plus" data-id="${item.id}" ${unavailable ? "disabled" : ""} aria-label="Увеличить количество">+</button><button class="remove" data-action="remove" data-id="${item.id}">Удалить</button></div></article>`;
