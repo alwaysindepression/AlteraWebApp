@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#050505">
   <title>ALTERA STORE</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="./style.css?v=24">
+  <link rel="stylesheet" href="./style.css?v=27">
 </head>
 <body>
   <main class="app">
@@ -30,7 +30,7 @@
         <div><span class="banner-kicker">БЫСТРО · БЕЗОПАСНО · 24/7</span><strong>Оплата — выдача автоматически</strong><span>История заказов и поддержка всегда под рукой</span></div>
         <span class="banner-mark" aria-hidden="true">✦</span>
       </section>
-      <div class="catalog-intro"><div><h2>Популярное и новое</h2></div><button id="show-favorites" class="text-button" type="button">♡ Избранное</button></div>
+      <div class="catalog-intro"><div><h2>Популярное и новое</h2></div></div>
       <div class="toolbar">
         <div class="search-row">
           <input id="search" list="product-suggestions" type="search" placeholder="Поиск товара" autocomplete="off">
@@ -56,6 +56,7 @@
             </select>
           </label>
           <label class="filter-field"><span>Наличие</span><select id="stock-filter" aria-label="Фильтр наличия"><option value="all">Все товары</option><option value="in-stock">Только в наличии</option></select></label>
+          <button id="reset-filters" class="text-button filter-reset" type="button">Сбросить фильтры</button>
         </div>
       </div>
       <p id="status" class="status">Загрузка каталога...</p>
@@ -68,8 +69,14 @@
     </section>
 
     <section id="favorites-view" class="view" hidden aria-labelledby="favorites-title">
-      <div class="section-heading"><div><h2 id="favorites-title">Избранное</h2></div><div class="favorites-tools"><select id="favorites-sort" aria-label="Сортировка избранного"><option value="newest">Новые</option><option value="price-asc">Дешевле</option><option value="price-desc">Дороже</option></select><button id="favorites-buy-all" class="secondary-button" type="button">Купить доступные</button><button id="favorites-remove-all" class="text-button" type="button">Удалить всё</button></div></div>
-      <label class="filter-field favorites-stock-filter"><span>Фильтр наличия</span><select id="favorites-stock-filter"><option value="all">Все</option><option value="in-stock">В наличии</option></select></label>
+      <div class="section-heading"><div><h2 id="favorites-title">Избранное</h2></div></div>
+      <div class="favorites-panel">
+        <div class="favorites-tools">
+          <label class="favorites-sort-control"><span>Сортировка</span><select id="favorites-sort" aria-label="Сортировка избранного"><option value="newest">Новые</option><option value="price-asc">Дешевле</option><option value="price-desc">Дороже</option></select></label>
+          <label class="favorites-stock-filter"><span>Наличие</span><select id="favorites-stock-filter"><option value="all">Все товары</option><option value="in-stock">В наличии</option></select></label>
+        </div>
+        <div class="favorites-actions"><button id="favorites-buy-all" class="secondary-button" type="button">Купить доступные</button></div>
+      </div>
       <p id="favorites-status" class="status">Загрузка...</p>
       <section id="favorites-list" class="catalog"></section>
     </section>
@@ -185,6 +192,6 @@
   <section id="purchase-success" class="info-modal" hidden aria-modal="true" role="dialog" aria-labelledby="success-title">
     <div class="info-modal-dialog success-dialog"><div class="checkout-header"><h2 id="success-title">Покупка успешна</h2><button id="success-close" class="modal-close" type="button" aria-label="Закрыть">×</button></div><p class="success-mark" aria-hidden="true">✓</p><p id="success-order" class="status"></p><pre id="success-items" class="success-items"></pre><div class="product-actions"><button id="success-history" class="primary-button" type="button">Открыть покупки</button><button id="success-copy" class="secondary-button" type="button">Скопировать товар</button></div></div>
   </section>
-  <script src="./app.js?v=35"></script>
+  <script src="./app.js?v=38"></script>
 </body>
 </html>
