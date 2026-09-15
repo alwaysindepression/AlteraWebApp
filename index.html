@@ -6,31 +6,31 @@
   <meta name="theme-color" content="#050505">
   <title>ALTERA STORE</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="./style.css?v=23">
+  <link rel="stylesheet" href="./style.css?v=24">
 </head>
 <body>
   <main class="app">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">ALTERA STORE</p>
-        <h1>Магазин</h1>
-        <p class="topbar-subtitle">Проверенные товары с моментальной выдачей</p>
-      </div>
-      <button id="how-it-works-button" class="header-help" type="button" aria-label="Как работает магазин">Как это работает?</button>
-    </header>
     <nav class="tabs" aria-label="Разделы магазина">
-      <button class="tab active" data-view="catalog-view" aria-controls="catalog-view">Каталог</button>
-      <button class="tab" data-view="profile-view" aria-controls="profile-view">Профиль</button>
-      <button class="tab" data-view="favorites-view" aria-controls="favorites-view">Избранное</button>
-      <button class="tab cart-tab" data-view="cart-view" aria-controls="cart-view">Корзина <span id="cart-count" aria-label="Количество товаров в корзине">0</span></button>
+      <button class="tab active" data-view="catalog-view" aria-controls="catalog-view"><span>Каталог</span></button>
+      <button class="tab" data-view="profile-view" aria-controls="profile-view"><span>Профиль</span></button>
+      <button class="tab" data-view="favorites-view" aria-controls="favorites-view"><span>Избранное</span></button>
+      <button class="tab cart-tab" data-view="cart-view" aria-controls="cart-view"><span>Корзина</span><span id="cart-count" hidden aria-label="Количество товаров в корзине">0</span></button>
     </nav>
 
     <section id="catalog-view" class="view active-view">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">ALTERA STORE</p>
+          <h1>Магазин</h1>
+          <p class="topbar-subtitle">Проверенные товары с моментальной выдачей</p>
+        </div>
+        <button id="how-it-works-button" class="header-help" type="button" aria-label="Как работает магазин">Как это работает?</button>
+      </header>
       <section class="home-banner" aria-label="Преимущества магазина">
         <div><span class="banner-kicker">БЫСТРО · БЕЗОПАСНО · 24/7</span><strong>Оплата — выдача автоматически</strong><span>История заказов и поддержка всегда под рукой</span></div>
         <span class="banner-mark" aria-hidden="true">✦</span>
       </section>
-      <div class="catalog-intro"><div><p class="eyebrow">ВЫБЕРИТЕ СВОЙ ТОВАР</p><h2>Популярное и новое</h2></div><button id="show-favorites" class="text-button" type="button">♡ Избранное</button></div>
+      <div class="catalog-intro"><div><h2>Популярное и новое</h2></div><button id="show-favorites" class="text-button" type="button">♡ Избранное</button></div>
       <div class="toolbar">
         <div class="search-row">
           <input id="search" list="product-suggestions" type="search" placeholder="Поиск товара" autocomplete="off">
@@ -68,7 +68,7 @@
     </section>
 
     <section id="favorites-view" class="view" hidden aria-labelledby="favorites-title">
-      <div class="section-heading"><div><p class="eyebrow">СОХРАНЁННЫЕ ТОВАРЫ</p><h2 id="favorites-title">Избранное</h2></div><div class="favorites-tools"><select id="favorites-sort" aria-label="Сортировка избранного"><option value="newest">Новые</option><option value="price-asc">Дешевле</option><option value="price-desc">Дороже</option></select><button id="favorites-buy-all" class="secondary-button" type="button">Купить доступные</button><button id="favorites-remove-all" class="text-button" type="button">Удалить всё</button></div></div>
+      <div class="section-heading"><div><h2 id="favorites-title">Избранное</h2></div><div class="favorites-tools"><select id="favorites-sort" aria-label="Сортировка избранного"><option value="newest">Новые</option><option value="price-asc">Дешевле</option><option value="price-desc">Дороже</option></select><button id="favorites-buy-all" class="secondary-button" type="button">Купить доступные</button><button id="favorites-remove-all" class="text-button" type="button">Удалить всё</button></div></div>
       <label class="filter-field favorites-stock-filter"><span>Фильтр наличия</span><select id="favorites-stock-filter"><option value="all">Все</option><option value="in-stock">В наличии</option></select></label>
       <p id="favorites-status" class="status">Загрузка...</p>
       <section id="favorites-list" class="catalog"></section>
@@ -87,8 +87,9 @@
     </section>
 
     <section id="profile-view" class="view" hidden>
-      <div class="section-heading"><div><p class="eyebrow">АККАУНТ</p><h2>Профиль</h2></div><button class="header-help" type="button" data-view="history-view">Покупки</button></div>
+      <div class="section-heading"><div><h2>Профиль</h2></div></div>
       <section id="profile-card" class="profile-card"></section>
+      <button class="profile-purchases-card" type="button" data-view="history-view"><span class="profile-purchases-icon" aria-hidden="true">▤</span><span><strong>Мои покупки</strong><small>История заказов и выданных товаров</small></span><span class="profile-purchases-arrow" aria-hidden="true">›</span></button>
       <section id="referral-card" class="profile-card referral-card"></section>
       <section class="profile-card deposit-card">
         <div class="profile-card-heading"><strong>Пополнить баланс</strong><span>Зачисление в USDT</span></div>
@@ -118,7 +119,7 @@
     </section>
 
     <section id="cart-view" class="view" hidden>
-      <div class="section-heading"><div><p class="eyebrow">ВАШ ВЫБОР</p><h2>Корзина</h2></div></div>
+      <div class="section-heading"><div><h2>Корзина</h2></div></div>
       <section id="cart-list" class="cart-list"></section>
       <button id="cart-clear" class="text-button cart-clear" type="button">Очистить корзину</button>
       <div id="cart-empty" class="empty-state">Корзина пока пуста.<br><button class="text-button" data-view="catalog-view">Перейти в каталог</button></div>
@@ -184,6 +185,6 @@
   <section id="purchase-success" class="info-modal" hidden aria-modal="true" role="dialog" aria-labelledby="success-title">
     <div class="info-modal-dialog success-dialog"><div class="checkout-header"><h2 id="success-title">Покупка успешна</h2><button id="success-close" class="modal-close" type="button" aria-label="Закрыть">×</button></div><p class="success-mark" aria-hidden="true">✓</p><p id="success-order" class="status"></p><pre id="success-items" class="success-items"></pre><div class="product-actions"><button id="success-history" class="primary-button" type="button">Открыть покупки</button><button id="success-copy" class="secondary-button" type="button">Скопировать товар</button></div></div>
   </section>
-  <script src="./app.js?v=34"></script>
+  <script src="./app.js?v=35"></script>
 </body>
 </html>
