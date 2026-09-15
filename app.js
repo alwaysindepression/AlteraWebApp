@@ -215,6 +215,7 @@ function showView(viewId) {
   });
   document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.view === viewId));
   $("how-it-works-button").hidden = viewId !== "catalog-view";
+  $("cart-bar").hidden = viewId !== "catalog-view" || !cart.some((line) => line.quantity > 0);
   const activeView = document.getElementById(viewId);
   activeView?.setAttribute("tabindex", "-1");
   activeView?.focus({ preventScroll: true });
@@ -294,12 +295,15 @@ function renderCatalog() {
   const popular = [...visible].sort((a, b) => Number(b.reviews_count || 0) - Number(a.reviews_count || 0)).slice(0, 3);
   const newItems = [...visible].sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 3);
   const featured = (title, items) => items.length ? `<section class="featured-section"><div class="section-heading"><h2>${title}</h2></div><div class="group-items">${items.map(cardTemplate).join("")}</div></section>` : "";
-  catalogNode.innerHTML = visible.length ? featured("Популярное", popular) + featured("Новинки", newItems) + [...groups.entries()].map(([key, items]) => `
+  const categoryView = group !== "all"
+    ? `<section class="catalog-group"><h2 class="group-title">${escapeHtml(groupTitle(group))}</h2><div class="group-items">${visible.map(cardTemplate).join("")}</div></section>`
+    : featured("Популярное", popular) + featured("Новинки", newItems) + [...groups.entries()].map(([key, items]) => `
     <section class="catalog-group">
       <h2 class="group-title">${escapeHtml(groupTitle(key))}</h2>
       <div class="group-items">${items.map(cardTemplate).join("")}</div>
     </section>
-  `).join("") : `<div class="empty-state catalog-empty"><strong>Ничего не нашли</strong><span>Попробуйте изменить запрос или сбросить фильтры.</span><button class="secondary-button" data-reset-filters type="button">Сбросить фильтры</button></div>`;
+  `).join("");
+  catalogNode.innerHTML = visible.length ? categoryView : `<div class="empty-state catalog-empty"><strong>Ничего не нашли</strong><span>Попробуйте изменить запрос или сбросить фильтры.</span><button class="secondary-button" data-reset-filters type="button">Сбросить фильтры</button></div>`;
   statusNode.hidden = true;
 }
 
@@ -759,7 +763,7 @@ function renderCart() {
   const count = cart.reduce((sum, line) => sum + line.quantity, 0);
   $("cart-count").textContent = count;
   $("cart-count").hidden = count < 1;
-  $("cart-bar").hidden = count < 1;
+  $("cart-bar").hidden = count < 1 || !$("catalog-view").classList.contains("active-view");
   $("cart-bar-count").textContent = count;
   $("cart-bar-total").textContent = `${baseCartTotal().toFixed(2)} USDT`;
   if (count !== previousCartCount) {

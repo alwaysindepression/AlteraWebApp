@@ -54,6 +54,7 @@ h2 { margin-bottom: 0; font-size: 22px; letter-spacing: -.03em; }
 .tab.active { background: var(--soft); }
 .cart-tab span[hidden] { display: none; }
 .tab, button { -webkit-tap-highlight-color: transparent; }
+.tab:focus, .tab:focus-visible { outline: none !important; box-shadow: none !important; }
 .tab:focus:not(:focus-visible), button:focus:not(:focus-visible) { outline: none; box-shadow: none; }
 .tab:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .cart-tab #cart-count { display: none !important; }
@@ -227,7 +228,7 @@ button.is-loading::after { content: ""; position: absolute; width: 1em; height: 
 .cart-summary strong { font-size: 20px; }
 .cart-summary .primary-button { grid-column: 1 / -1; margin-top: 10px; }
 .cart-summary { position: sticky; bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 3; box-shadow: 0 10px 30px #0008; }
-.cart-bar { position: fixed; z-index: 10; right: max(16px, calc((100vw - 728px) / 2)); bottom: calc(78px + env(safe-area-inset-bottom)); left: max(16px, calc((100vw - 728px) / 2)); display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 728px; margin: 0 auto; padding: 10px 12px 10px 16px; border: 1px solid var(--line); border-radius: 15px; background: #17171a; box-shadow: 0 12px 35px #000b; animation: slide-up .25s ease both; }
+.cart-bar { position: fixed; z-index: 10; right: max(12px, calc((100vw - 728px) / 2)); bottom: calc(78px + env(safe-area-inset-bottom)); left: max(12px, calc((100vw - 728px) / 2)); display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 728px; margin: 0 auto; padding: 10px 12px 10px 16px; border: 1px solid var(--line); border-radius: 17px; background: #17171a; box-shadow: 0 12px 35px #000b; animation: slide-up .25s ease both; }
 .cart-bar span { color: var(--muted); font-size: 13px; }
 .cart-bar strong { color: var(--text); }
 .info-block { margin-top: 28px; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
