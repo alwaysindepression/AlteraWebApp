@@ -207,6 +207,7 @@ function showView(viewId) {
     view.classList.toggle("active-view", view.id === viewId);
   });
   document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.view === viewId));
+  $("how-it-works-button").hidden = viewId !== "catalog-view";
   const activeView = document.getElementById(viewId);
   activeView?.setAttribute("tabindex", "-1");
   activeView?.focus({ preventScroll: true });

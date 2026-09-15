@@ -20,7 +20,6 @@
     </header>
     <nav class="tabs" aria-label="Разделы магазина">
       <button class="tab active" data-view="catalog-view" aria-controls="catalog-view">Каталог</button>
-      <button class="tab" data-view="history-view" aria-controls="history-view">Покупки</button>
       <button class="tab" data-view="profile-view" aria-controls="profile-view">Профиль</button>
       <button class="tab" data-view="favorites-view" aria-controls="favorites-view">Избранное</button>
       <button class="tab cart-tab" data-view="cart-view" aria-controls="cart-view">Корзина <span id="cart-count" aria-label="Количество товаров в корзине">0</span></button>
@@ -88,7 +87,7 @@
     </section>
 
     <section id="profile-view" class="view" hidden>
-      <div class="section-heading"><div><p class="eyebrow">АККАУНТ</p><h2>Профиль</h2></div></div>
+      <div class="section-heading"><div><p class="eyebrow">АККАУНТ</p><h2>Профиль</h2></div><button class="header-help" type="button" data-view="history-view">Покупки</button></div>
       <section id="profile-card" class="profile-card"></section>
       <section id="referral-card" class="profile-card referral-card"></section>
       <section class="profile-card deposit-card">
@@ -185,6 +184,6 @@
   <section id="purchase-success" class="info-modal" hidden aria-modal="true" role="dialog" aria-labelledby="success-title">
     <div class="info-modal-dialog success-dialog"><div class="checkout-header"><h2 id="success-title">Покупка успешна</h2><button id="success-close" class="modal-close" type="button" aria-label="Закрыть">×</button></div><p class="success-mark" aria-hidden="true">✓</p><p id="success-order" class="status"></p><pre id="success-items" class="success-items"></pre><div class="product-actions"><button id="success-history" class="primary-button" type="button">Открыть покупки</button><button id="success-copy" class="secondary-button" type="button">Скопировать товар</button></div></div>
   </section>
-  <script src="./app.js?v=31"></script>
+  <script src="./app.js?v=34"></script>
 </body>
 </html>
