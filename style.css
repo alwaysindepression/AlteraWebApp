@@ -311,7 +311,7 @@ button.is-loading::after { content: ""; position: absolute; width: 1em; height: 
   .catalog-intro h2 { font-size: 22px; line-height: 1.1; }
   .header-help { padding: 8px 7px; font-size: 11px; }
   .product-hero > div:last-child { min-width: 0; }
-  .product-hero h1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 18px; line-height: 1.1; }
+  .product-hero h1 { display: -webkit-box; overflow: hidden; font-size: 18px; line-height: 1.1; text-overflow: ellipsis; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
   .filters { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
   .filters .filter-field { gap: 4px; }
   .filters .filter-field span { font-size: 9px; }
