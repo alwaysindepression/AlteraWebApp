@@ -234,9 +234,20 @@ async function openProductPage(item) {
     const product = data.product || item;
     const rating = Number(product.rating || 0);
     const reviews = product.reviews || [];
+    const productName = (product.name || "").toUpperCase();
     const productImage = product.group === "gy_1970"
       ? `<img src="./assets/gosuslugi-logo.jpg" alt="Логотип Госуслуг">`
-      : escapeHtml((product.name || "A").slice(0, 1).toUpperCase());
+      : productName.includes("TELE2")
+        ? `<img src="./assets/t2-logo.jpg" alt="Логотип T2">`
+        : productName.includes("BEELINE")
+          ? `<img src="./assets/beeline-logo.jpg" alt="Логотип Билайн">`
+          : productName.includes("MEGAFON")
+            ? `<img src="./assets/megafon-logo.jpg" alt="Логотип МегаФона">`
+          : productName.includes("YOTA")
+            ? `<img src="./assets/yota-logo.jpg" alt="Логотип YOTA">`
+          : product.group === "l0gu_1970"
+          ? `<img src="./assets/mts-logo.jpg" alt="Логотип МТС">`
+          : escapeHtml((product.name || "A").slice(0, 1).toUpperCase());
     node.innerHTML = `
       <div class="product-hero">
         <div class="product-image">${productImage}</div>
