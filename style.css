@@ -57,6 +57,8 @@ h2 { margin-bottom: 0; font-size: 22px; letter-spacing: -.03em; }
 .tab:focus, .tab:focus-visible { outline: none !important; box-shadow: none !important; }
 .tab:focus:not(:focus-visible), button:focus:not(:focus-visible) { outline: none; box-shadow: none; }
 .tab:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.tabs .tab:focus-visible { outline: none !important; box-shadow: none !important; }
+.view:focus, .view:focus-visible { outline: none !important; box-shadow: none !important; }
 .cart-tab #cart-count { display: none !important; }
 .count-pop { animation: count-pop .32s ease-out; }
 @keyframes count-pop { 50% { transform: scale(1.35); } }
@@ -296,6 +298,9 @@ button.is-loading::after { content: ""; position: absolute; width: 1em; height: 
 .toast-visible { opacity: 1; transform: translateY(0); }
 .toast-error { border-color: #a95d5d; }
 @media (max-width: 520px) {
+  .topbar { gap: 8px; }
+  .topbar h1 { flex: 1 1 auto; min-width: 0; white-space: nowrap; font-size: 22px; }
+  .header-help { padding: 8px 7px; font-size: 11px; }
   .filters { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
   .filters .filter-field { gap: 4px; }
   .filters .filter-field span { font-size: 9px; }
