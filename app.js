@@ -235,8 +235,10 @@ async function openProductPage(item) {
     const rating = Number(product.rating || 0);
     const reviews = product.reviews || [];
     const productName = (product.name || "").toUpperCase();
-    const productImage = product.group === "gy_1970"
-      ? `<img src="./assets/gosuslugi-logo.jpg" alt="Логотип Госуслуг">`
+    const productImage = product.group === "gy_1970" && productName.includes("ПОД ГК")
+      ? `<img src="./assets/gosuslugi-key-logo.jpg" alt="Логотип Госуслуг под ГК">`
+      : product.group === "gy_1970"
+        ? `<img src="./assets/gosuslugi-logo.jpg" alt="Логотип Госуслуг">`
       : productName.includes("TELE2")
         ? `<img src="./assets/t2-logo.jpg" alt="Логотип T2">`
         : productName.includes("BEELINE")
