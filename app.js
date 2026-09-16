@@ -247,6 +247,8 @@ async function openProductPage(item) {
             ? `<img src="./assets/megafon-logo.jpg" alt="Логотип МегаФона">`
           : productName.includes("YOTA")
             ? `<img src="./assets/yota-logo.jpg" alt="Логотип YOTA">`
+          : productName.includes("ТБАНК") || productName.includes("TBANK")
+            ? `<img src="./assets/tbank-logo.jpg" alt="Логотип Т-Банка">`
           : product.group === "l0gu_1970"
           ? `<img src="./assets/mts-logo.jpg" alt="Логотип МТС">`
           : escapeHtml((product.name || "A").slice(0, 1).toUpperCase());
@@ -815,8 +817,7 @@ async function loadProfile() {
       ? `<img src="${escapeHtml(photoUrl)}" alt="" referrerpolicy="no-referrer" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>${avatarFallback}</span>`
       : avatarFallback;
     const adminBadge = data.is_admin ? `<span class="admin-badge">Admin</span>` : "";
-    $("profile-card").innerHTML = `<div class="profile-main"><div class="profile-avatar">${avatar}</div><div><h3>${escapeHtml([user.first_name, user.last_name].filter(Boolean).join(" ") || "Пользователь")}</h3><span>${user.username ? "@" + escapeHtml(user.username) : "ID " + user.id}</span></div></div>
-      ${adminBadge}
+    $("profile-card").innerHTML = `<div class="profile-main"><div class="profile-avatar">${avatar}</div><div class="profile-identity"><h3>${escapeHtml([user.first_name, user.last_name].filter(Boolean).join(" ") || "Пользователь")}</h3><div class="profile-username"><span>${user.username ? "@" + escapeHtml(user.username) : "ID " + user.id}</span>${adminBadge}</div></div></div>
       <div class="stats"><div><strong>${Number(data.balance).toFixed(2)}</strong><span>USDT на балансе</span></div><div><strong>${data.purchases || 0}</strong><span>товаров куплено</span></div><div><strong>${Number(data.total_spent || 0).toFixed(2)}</strong><span>USDT потрачено</span></div><div><strong>${data.referrals?.count || 0}</strong><span>рефералов</span></div></div><p class="profile-date">Регистрация: ${formatDate(data.created_at)}</p>`;
     const referrals = data.referrals || {};
     const referralLink = referrals.link || "";
