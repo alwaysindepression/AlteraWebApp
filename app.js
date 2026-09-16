@@ -273,10 +273,10 @@ async function openProductPage(item) {
     const descriptionToggle = node.querySelector(".description-toggle");
     const description = node.querySelector(".product-description");
     descriptionToggle.addEventListener("click", () => {
-    const expanded = description.classList.toggle("is-expanded");
-    description.classList.toggle("is-collapsed", !expanded);
-    descriptionToggle.setAttribute("aria-expanded", String(expanded));
-    descriptionToggle.textContent = expanded ? "Свернуть описание" : "Показать полностью";
+      const expanded = description.classList.toggle("is-expanded");
+      description.classList.toggle("is-collapsed", !expanded);
+      descriptionToggle.setAttribute("aria-expanded", String(expanded));
+      descriptionToggle.textContent = expanded ? "Свернуть описание" : "Показать полностью";
     });
     $("review-submit").addEventListener("click", async () => {
       const button = $("review-submit");
