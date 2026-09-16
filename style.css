@@ -192,6 +192,7 @@ button.is-loading::after { content: ""; position: absolute; width: 1em; height: 
 .profile-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .profile-main h3 { margin: 0; font-size: 18px; }
 .profile-main span, .promo-box span { color: var(--muted); font-size: 12px; }
+.admin-badge { display: inline-flex; align-items: center; width: fit-content; margin-top: 12px; padding: 4px 7px; border: 1px solid #a4873f; border-radius: 6px; background: #30291c; color: #f4d37c; font-size: 10px; font-weight: 700; }
 .stats { align-items: stretch; margin-top: 22px; gap: 8px; }
 .stats div { display: grid; gap: 3px; min-width: 0; flex: 1; }
 .stats strong { font-size: 19px; }
@@ -302,6 +303,8 @@ button.is-loading::after { content: ""; position: absolute; width: 1em; height: 
   .topbar h1 { flex: 1 1 auto; min-width: 0; white-space: nowrap; font-size: 22px; }
   .catalog-intro h2 { font-size: 22px; line-height: 1.1; }
   .header-help { padding: 8px 7px; font-size: 11px; }
+  .product-hero > div:last-child { min-width: 0; }
+  .product-hero h1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 22px; }
   .filters { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
   .filters .filter-field { gap: 4px; }
   .filters .filter-field span { font-size: 9px; }

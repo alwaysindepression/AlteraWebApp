@@ -814,7 +814,9 @@ async function loadProfile() {
     const avatar = photoUrl
       ? `<img src="${escapeHtml(photoUrl)}" alt="" referrerpolicy="no-referrer" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>${avatarFallback}</span>`
       : avatarFallback;
+    const adminBadge = data.is_admin ? `<span class="admin-badge">Admin</span>` : "";
     $("profile-card").innerHTML = `<div class="profile-main"><div class="profile-avatar">${avatar}</div><div><h3>${escapeHtml([user.first_name, user.last_name].filter(Boolean).join(" ") || "Пользователь")}</h3><span>${user.username ? "@" + escapeHtml(user.username) : "ID " + user.id}</span></div></div>
+      ${adminBadge}
       <div class="stats"><div><strong>${Number(data.balance).toFixed(2)}</strong><span>USDT на балансе</span></div><div><strong>${data.purchases || 0}</strong><span>товаров куплено</span></div><div><strong>${Number(data.total_spent || 0).toFixed(2)}</strong><span>USDT потрачено</span></div><div><strong>${data.referrals?.count || 0}</strong><span>рефералов</span></div></div><p class="profile-date">Регистрация: ${formatDate(data.created_at)}</p>`;
     const referrals = data.referrals || {};
     const referralLink = referrals.link || "";
