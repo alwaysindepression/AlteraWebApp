@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title">
+  <title>Госуслуги</title>
+  <rect width="256" height="256" rx="48" fill="#0876e8"/>
+  <path fill="#fff" d="M128 35c-21 0-38 17-38 38s17 38 38 38 38-17 38-38-17-38-38-38Zm0 21c9.5 0 17 7.5 17 17s-7.5 17-17 17-17-7.5-17-17 7.5-17 17-17Z"/>
+  <path fill="#fff" d="M52 182c5-31 34-54 76-54s71 23 76 54v19H52v-19Zm24 0h104c-8-19-28-31-52-31s-44 12-52 31Z"/>
+  <text x="128" y="228" fill="#fff" font-family="Arial,sans-serif" font-size="19" font-weight="700" text-anchor="middle">госуслуги</text>
+</svg>

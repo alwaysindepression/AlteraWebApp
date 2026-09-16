@@ -234,9 +234,12 @@ async function openProductPage(item) {
     const product = data.product || item;
     const rating = Number(product.rating || 0);
     const reviews = product.reviews || [];
+    const productImage = product.group === "gy_1970"
+      ? `<img src="./assets/gosuslugi-logo.jpg" alt="Логотип Госуслуг">`
+      : escapeHtml((product.name || "A").slice(0, 1).toUpperCase());
     node.innerHTML = `
       <div class="product-hero">
-        <div class="product-image" aria-hidden="true">${escapeHtml((product.name || "A").slice(0, 1).toUpperCase())}</div>
+        <div class="product-image">${productImage}</div>
         <div><p class="eyebrow">${escapeHtml(groupTitle(product.group || "other"))}</p>
           <h1 id="product-title">${escapeHtml(product.name)}</h1>
           <div class="product-rating">${rating ? `★ ${rating.toFixed(1)}` : "Новый товар"} <span>· ${Number(product.reviews_count || reviews.length)} отзывов</span></div>
