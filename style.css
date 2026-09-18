@@ -59,21 +59,28 @@ h2 { margin-bottom: 0; font-size: 22px; letter-spacing: -.03em; }
 .tab:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .tabs .tab:focus-visible { outline: none !important; box-shadow: none !important; }
 .view:focus, .view:focus-visible { outline: none !important; box-shadow: none !important; }
+.view.active-view { animation: view-enter .22s ease-out both; }
+@keyframes view-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 .cart-tab #cart-count { display: none !important; }
 .count-pop { animation: count-pop .32s ease-out; }
 @keyframes count-pop { 50% { transform: scale(1.35); } }
 .toolbar { display: grid; gap: 10px; }
 .search-row { display: flex; gap: 8px; }
-.search-row input { flex: 1; }
-.refresh-button { width: 46px; border: 1px solid var(--line); border-radius: 11px; background: var(--panel); color: var(--text); font-size: 24px; }
+.popular-queries { display: flex; gap: 6px; flex-wrap: wrap; }
+.query-chip { border: 1px solid var(--line); border-radius: 999px; padding: 5px 9px; background: var(--soft); color: var(--muted); font-size: 11px; }
+.search-row input { flex: 1; height: 38px; }
+.refresh-button { width: 38px; height: 38px; flex: 0 0 38px; border: 1px solid var(--line); border-radius: 11px; background: var(--panel); color: var(--text); font-size: 20px; line-height: 1; }
 .refresh-button:hover { border-color: var(--text); transform: rotate(90deg); transition: .2s; }
 .toolbar input, .promo-row input, select { min-width: 0; width: 100%; border: 1px solid var(--line); border-radius: 11px; padding: 12px 13px; background: var(--panel); color: var(--text); outline: 0; }
+.search-row input { padding: 9px 10px; }
 .toolbar input:focus, input:focus, select:focus { border-color: #a7a7af; }
 .filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-items: end; }
 .filters .filter-field span { font-size: 10px; }
 .filters select { min-height: 38px; padding: 9px 10px; }
 .filter-reset { grid-column: 1 / -1; justify-self: start; font-size: 12px; }
 .filter-field { display: grid; gap: 6px; min-width: 0; }
+.history-filters { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.history-filters select { width: auto; min-height: 36px; padding: 7px; }
 .favorites-panel { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin: -4px 0 14px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
 .favorites-tools { display: flex; align-items: end; gap: 8px; min-width: 0; flex: 1; }
 .favorites-tools label { display: grid; gap: 5px; min-width: 0; flex: 1 1 0; }
@@ -98,6 +105,7 @@ select {
 .product-price-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 0 3px; }
 .product-price-row strong { font-size: 24px; }
 .product-price-row span { color: var(--muted); font-size: 12px; }
+.product-updated { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 11px; }
 .product-badges { display: flex; flex-wrap: wrap; gap: 6px; }
 .badge-warning { color: #f4d37c; background: #30291c; }
 .product-section { padding: 16px; border: 1px solid var(--line); border-radius: 15px; background: var(--card); }
@@ -316,6 +324,8 @@ button.is-loading::after { content: ""; position: absolute; width: 1em; height: 
   .filters .filter-field { gap: 4px; }
   .filters .filter-field span { font-size: 9px; }
   .filters select { min-height: 36px; padding: 8px 5px; font-size: 10px; }
+  .search-row input { height: 36px; padding: 8px 5px; font-size: 10px; }
+  .refresh-button { width: 36px; height: 36px; flex-basis: 36px; font-size: 18px; }
   .meta { align-items: flex-end; }
   .card-actions { flex-direction: row; }
   .card-actions button { padding: 8px 5px; font-size: 11px; }

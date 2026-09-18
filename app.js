@@ -58,6 +58,10 @@ $("search").addEventListener("input", renderCatalog);
 $("category-filter").addEventListener("change", renderCatalog);
 $("sort").addEventListener("change", renderCatalog);
 $("stock-filter").addEventListener("change", renderCatalog);
+$("popular-queries").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-query]");
+  if (button) { $("search").value = button.dataset.query; renderCatalog(); }
+});
 $("reset-filters").addEventListener("click", () => {
   $("search").value = "";
   $("category-filter").value = "all";
@@ -67,6 +71,7 @@ $("reset-filters").addEventListener("click", () => {
   renderCatalog();
 });
 $("history-sort").addEventListener("change", loadHistory);
+$("history-date-filter").addEventListener("change", loadHistory);
 $("favorites-sort").addEventListener("change", loadFavorites);
 $("favorites-stock-filter").addEventListener("change", loadFavorites);
 $("cart-clear").addEventListener("click", () => {
@@ -125,6 +130,12 @@ document.body.addEventListener("click", async (event) => {
       try {
         const result = await api("/api/history/item", { method: "POST", body: JSON.stringify({ history_id: Number(orderAction.dataset.historyId) }) });
         showSuccessScreen(orderAction.dataset.orderNumber, result.item);
+      } catch (error) { showToast(error.message, "error"); }
+    } else if (orderAction.dataset.orderAction === "copy") {
+      try {
+        const result = await api("/api/history/item", { method: "POST", body: JSON.stringify({ history_id: Number(orderAction.dataset.historyId) }) });
+        await copyText(result.item || "");
+        showToast("Товар скопирован");
       } catch (error) { showToast(error.message, "error"); }
     }
   }
@@ -226,6 +237,7 @@ function showView(viewId) {
 }
 
 async function openProductPage(item) {
+  rememberViewed(item.id);
   showView("product-view");
   const node = $("product-detail");
   node.innerHTML = `<div class="skeleton skeleton-product"></div>`;
@@ -261,6 +273,7 @@ async function openProductPage(item) {
         </div>
       </div>
       <div class="product-price-row"><strong>${Number(product.price).toFixed(2)} USDT</strong><span>${product.stock > 0 ? `${product.stock} шт. в наличии` : "Нет в наличии"}</span></div>
+      <div class="product-updated">Обновлено: ${formatDate(product.updated_at || product.created_at || "")}<button class="text-button" id="product-share" type="button">Поделиться</button></div>
       <div class="product-badges"><span class="badge">Моментальная выдача</span>${product.stock < 1 ? `<span class="badge badge-warning">Нет в наличии</span>` : ""}</div>
       <section class="product-section product-description-section"><h2>Описание</h2><div class="product-description is-collapsed"><p>${escapeHtml(product.description || "Описание отсутствует.")}</p></div><button class="description-toggle" type="button" aria-expanded="false">Показать полностью</button></section>
       <section class="product-section"><h2>Как это работает</h2><ol><li>Выберите количество и способ оплаты.</li><li>После подтверждения платежа товар выдаётся автоматически.</li><li>Данные заказа сохраняются в разделе «Покупки».</li></ol></section>
@@ -270,6 +283,14 @@ async function openProductPage(item) {
       <section class="product-section"><h2>Похожие товары</h2><div class="similar-products">${categories.filter((entry) => entry.id !== product.id && entry.group === product.group).slice(0, 3).map(cardTemplate).join("") || `<p class="muted">Похожих товаров пока нет.</p>`}</div></section>`;
     $("product-buy").addEventListener("click", () => openCheckout(product));
     $("product-cart").addEventListener("click", () => { addToCart(product.id); showToast("Товар добавлен в корзину"); });
+    $("product-share").addEventListener("click", async () => {
+      const shareData = { title: product.name, text: `${product.name} — ${Number(product.price).toFixed(2)} USDT` };
+      try {
+        if (navigator.share) await navigator.share(shareData);
+        else await copyText(`${product.name} — ${Number(product.price).toFixed(2)} USDT`);
+        showToast(navigator.share ? "Ссылка отправлена" : "Информация скопирована");
+      } catch (error) { if (error.name !== "AbortError") showToast("Не удалось поделиться", "error"); }
+    });
     const descriptionToggle = node.querySelector(".description-toggle");
     const description = node.querySelector(".product-description");
     descriptionToggle.addEventListener("click", () => {
@@ -302,7 +323,7 @@ function renderCatalog() {
   let visible = categories.filter((item) =>
     (group === "all" || (item.group || "other") === group) &&
     (stockFilter !== "in-stock" || item.stock > 0) &&
-    `${item.name} ${item.description}`.toLowerCase().includes(query)
+    matchesSearch(item, query)
   );
   visible.sort((a, b) => {
     if (sort === "price-asc") return Number(a.price) - Number(b.price);
@@ -320,10 +341,14 @@ function renderCatalog() {
   });
   const popular = [...visible].sort((a, b) => Number(b.reviews_count || 0) - Number(a.reviews_count || 0)).slice(0, 3);
   const newItems = [...visible].sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 3);
+  const viewedIds = getViewedIds();
+  const recentlyViewed = viewedIds.map((id) => categories.find((item) => item.id === id)).filter(Boolean).slice(0, 3);
+  const boughtIds = JSON.parse(localStorage.getItem("altera-bought-before") || "[]");
+  const boughtBefore = boughtIds.map((id) => categories.find((item) => item.id === id)).filter(Boolean).slice(0, 3);
   const featured = (title, items) => items.length ? `<section class="featured-section"><div class="section-heading"><h2>${title}</h2></div><div class="group-items">${items.map(cardTemplate).join("")}</div></section>` : "";
   const categoryView = group !== "all"
     ? `<section class="catalog-group"><h2 class="group-title">${escapeHtml(groupTitle(group))}</h2><div class="group-items">${visible.map(cardTemplate).join("")}</div></section>`
-    : featured("Популярное", popular) + featured("Новинки", newItems) + [...groups.entries()].map(([key, items]) => `
+    : featured("Для вас", recentlyViewed.length ? recentlyViewed : popular) + featured("Вы покупали", boughtBefore) + featured("Популярное", popular) + featured("Новинки", newItems) + [...groups.entries()].map(([key, items]) => `
     <section class="catalog-group">
       <h2 class="group-title">${escapeHtml(groupTitle(key))}</h2>
       <div class="group-items">${items.map(cardTemplate).join("")}</div>
@@ -332,6 +357,41 @@ function renderCatalog() {
   catalogNode.innerHTML = visible.length ? categoryView : `<div class="empty-state catalog-empty"><strong>Ничего не нашли</strong><span>Попробуйте изменить запрос или сбросить фильтры.</span><button class="secondary-button" data-reset-filters type="button">Сбросить фильтры</button></div>`;
   statusNode.hidden = true;
 }
+
+function matchesSearch(item, query) {
+  if (!query) return true;
+  const normalize = (value) => String(value || "").toLocaleLowerCase("ru-RU")
+    .normalize("NFKC").replace(/[ё]/g, "е").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  const text = normalize(`${item.name || ""} ${item.description || ""}`);
+  const words = text.split(/\s+/).filter(Boolean);
+  return normalize(query).split(/\s+/).filter(Boolean).every((word) =>
+    text.includes(word) || words.some((token) => fuzzyWordMatch(word, token))
+  );
+}
+function fuzzyWordMatch(query, token) {
+  if (query === token) return true;
+  const distanceLimit = query.length < 5 ? 1 : Math.max(1, Math.ceil(query.length * .3));
+  if (levenshtein(query, token) <= distanceLimit) return true;
+  // Also accept a dropped/extra character, a common mobile keyboard typo.
+  const [shorter, longer] = query.length <= token.length ? [query, token] : [token, query];
+  let index = 0;
+  for (const char of shorter) {
+    index = longer.indexOf(char, index);
+    if (index < 0) return false;
+    index += 1;
+  }
+  return longer.length - shorter.length <= 2;
+}
+function levenshtein(a, b) {
+  const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let prev = row[0]; row[0] = i;
+    for (let j = 1; j <= b.length; j++) { const value = row[j]; row[j] = Math.min(row[j] + 1, row[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = value; }
+  }
+  return row[b.length];
+}
+function getViewedIds() { try { return JSON.parse(localStorage.getItem("altera-viewed") || "[]"); } catch { return []; } }
+function rememberViewed(id) { localStorage.setItem("altera-viewed", JSON.stringify([id, ...getViewedIds().filter((value) => value !== id)].slice(0, 8))); }
 
 function renderCatalogSkeleton(count = 6) {
   catalogNode.innerHTML = `<div class="skeleton-grid">${Array.from({ length: count }, () => `
@@ -843,12 +903,16 @@ async function loadHistory() {
   if (!await waitForTelegramInitData()) { $("history-status").textContent = "История доступна при открытии приложения из Telegram."; return; }
   $("history-status").textContent = "Загрузка...";
   try {
-    const data = await api(`/api/history?limit=100&sort=${$("history-sort").value}`);
+    const days = $("history-date-filter").value;
+    const data = await api(`/api/history?limit=100&sort=${$("history-sort").value}&status=${encodeURIComponent($("history-status-filter").value)}&days=${encodeURIComponent(days)}`);
+    const bought = [];
     $("history-list").innerHTML = data.history?.length ? data.history.map((entry) => {
       const status = entry.status || "delivered";
+      if (entry.cat_id && (status === "delivered" || status === "fulfilled")) bought.push(entry.cat_id);
       const method = entry.payment_method === "xrocket" ? "xRocket" : entry.payment_method === "stars" ? "Telegram Stars" : "Баланс";
-      return `<article class="history-item"><div><strong>${escapeHtml(entry.product)}</strong><span>${escapeHtml(entry.item_preview || "Товар выдан")}</span><span class="history-meta"><b>${escapeHtml(entry.order_number || "Заказ")}</b> · ${method} · ${Number(entry.amount || 0).toFixed(2)} USDT</span></div><div class="history-actions"><time>${formatDate(entry.date)}</time><span class="order-status status-${escapeHtml(status)}">${statusLabel(status)}</span><div class="history-buttons"><button class="text-button" data-order-action="receive" data-history-id="${entry.id}" data-order-number="${escapeHtml(entry.order_number || "")}" ${status === "fulfilled" || status === "delivered" ? "" : "disabled"}>Получить товар</button><button class="text-button" data-repeat-cat="${entry.cat_id || ""}" ${entry.cat_id ? "" : "disabled"}>Повторить покупку</button><button class="text-button support-button" data-order-action="support" data-order-number="${escapeHtml(entry.order_number || "")}">Проблема с заказом</button></div></div></article>`;
+      return `<article class="history-item"><div><strong>${escapeHtml(entry.product)}</strong><span>${escapeHtml(entry.item_preview || "Товар выдан")}</span><span class="history-meta"><b>${escapeHtml(entry.order_number || "Заказ")}</b> · ${method} · ${Number(entry.amount || 0).toFixed(2)} USDT</span></div><div class="history-actions"><time>${formatDate(entry.date)}</time><span class="order-status status-${escapeHtml(status)}">${statusLabel(status)}</span><div class="history-buttons"><button class="text-button" data-order-action="receive" data-history-id="${entry.id}" data-order-number="${escapeHtml(entry.order_number || "")}" ${status === "fulfilled" || status === "delivered" ? "" : "disabled"}>Получить товар</button><button class="text-button" data-order-action="copy" data-history-id="${entry.id}" ${status === "fulfilled" || status === "delivered" ? "" : "disabled"}>Скопировать товар</button><button class="text-button" data-repeat-cat="${entry.cat_id || ""}" ${entry.cat_id ? "" : "disabled"}>Повторить покупку</button><button class="text-button support-button" data-order-action="support" data-order-number="${escapeHtml(entry.order_number || "")}">Проблема с заказом</button></div></div></article>`;
     }).join("") : `<div class="empty-state">Покупок пока нет.</div>`;
+    localStorage.setItem("altera-bought-before", JSON.stringify([...new Set(bought)].slice(0, 12)));
     $("history-status").textContent = data.history?.length ? `${data.history.length} записей` : "";
   } catch (error) { $("history-status").textContent = error.message; }
 }
@@ -1062,6 +1126,8 @@ async function loadCatalog() {
     $("product-suggestions").innerHTML = categories
       .map((item) => `<option value="${escapeHtml(item.name)}"></option>`)
       .join("");
+    const popularQueries = data.popular_queries || [...categories].sort((a, b) => Number(b.reviews_count || 0) - Number(a.reviews_count || 0)).slice(0, 5).map((item) => item.name);
+    $("popular-queries").innerHTML = popularQueries.map((query) => `<button type="button" class="query-chip" data-query="${escapeHtml(query)}">${escapeHtml(query)}</button>`).join("");
     const groups = [...new Set(categories.map((item) => item.group || "other"))];
     $("category-filter").innerHTML = `<option value="all">Все категории</option>` + groups.map((group) => `<option value="${escapeHtml(group)}">${escapeHtml(groupTitle(group))}</option>`).join("");
     const savedCategory = $("category-filter").dataset.savedValue;

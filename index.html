@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#050505">
   <title>Каталог товаров</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="./style.css?v=47">
+  <link rel="stylesheet" href="./style.css?v=50">
 </head>
 <body>
   <main class="app">
@@ -35,6 +35,7 @@
           <button id="refresh-catalog" class="refresh-button" type="button" aria-label="Обновить каталог">↻</button>
         </div>
         <datalist id="product-suggestions"></datalist>
+        <div id="popular-queries" class="popular-queries" aria-label="Популярные запросы"></div>
         <div class="filters">
           <label class="filter-field">
             <span>Категория</span>
@@ -82,10 +83,11 @@
     <section id="history-view" class="view" hidden>
       <div class="section-heading">
         <div><h2>История покупок</h2></div>
+        <div class="history-filters"><select id="history-status-filter" aria-label="Фильтр статуса"><option value="delivered">Выдано</option><option value="fulfilled">Выполнено</option><option value="pending">Ожидает</option><option value="cancelled">Отменено</option></select><select id="history-date-filter" aria-label="Фильтр даты"><option value="all">За всё время</option><option value="7">7 дней</option><option value="30">30 дней</option><option value="90">90 дней</option></select>
         <select id="history-sort" aria-label="Сортировка истории">
           <option value="newest">Новые</option>
           <option value="oldest">Старые</option>
-        </select>
+        </select></div>
       </div>
       <p id="history-status" class="status">Загрузка истории...</p>
       <section id="history-list" class="history-list"></section>
@@ -94,8 +96,6 @@
     <section id="profile-view" class="view" hidden>
       <div class="section-heading"><div><h2>Профиль</h2></div></div>
       <section id="profile-card" class="profile-card"></section>
-      <button class="profile-purchases-card" type="button" data-view="history-view"><span class="profile-purchases-icon" aria-hidden="true">▤</span><span><strong>Мои покупки</strong><small>История заказов и выданных товаров</small></span><span class="profile-purchases-arrow" aria-hidden="true">›</span></button>
-      <section id="referral-card" class="profile-card referral-card"></section>
       <section class="profile-card deposit-card">
         <div class="profile-card-heading"><strong>Пополнить баланс</strong><span>Зачисление в USDT</span></div>
         <div class="deposit-amounts" role="group" aria-label="Сумма пополнения">
@@ -113,6 +113,8 @@
         <button id="deposit-submit" class="primary-button" type="button">Пополнить через xRocket</button>
         <p id="deposit-status" class="form-status"></p>
       </section>
+      <button class="profile-purchases-card" type="button" data-view="history-view"><span class="profile-purchases-icon" aria-hidden="true">▤</span><span><strong>Мои покупки</strong><small>История заказов и выданных товаров</small></span><span class="profile-purchases-arrow" aria-hidden="true">›</span></button>
+      <section id="referral-card" class="profile-card referral-card"></section>
       <div class="promo-box">
         <div><strong>Промокод</strong><span>Скидка или бонус на баланс</span></div>
         <div class="promo-row">
@@ -190,6 +192,6 @@
   <section id="purchase-success" class="info-modal" hidden aria-modal="true" role="dialog" aria-labelledby="success-title">
     <div class="info-modal-dialog success-dialog"><div class="checkout-header"><h2 id="success-title">Покупка успешна</h2><button id="success-close" class="modal-close" type="button" aria-label="Закрыть">×</button></div><p class="success-mark" aria-hidden="true">✓</p><p id="success-order" class="status"></p><pre id="success-items" class="success-items"></pre><div class="product-actions"><button id="success-history" class="primary-button" type="button">Открыть покупки</button><button id="success-copy" class="secondary-button" type="button">Скопировать товар</button></div></div>
   </section>
-  <script src="./app.js?v=56"></script>
+  <script src="./app.js?v=57"></script>
 </body>
 </html>
