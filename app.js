@@ -25,7 +25,10 @@ let checkoutRequestKey = null;
 
 tg?.ready();
 tg?.expand();
-if (tg?.colorScheme) document.documentElement.dataset.theme = tg.colorScheme;
+applyTheme(localStorage.getItem("altera-theme") || "telegram");
+tg?.onEvent?.("themeChanged", () => {
+  if ((localStorage.getItem("altera-theme") || "telegram") === "telegram") applyTheme("telegram");
+});
 $("checkout-close").addEventListener("click", closeCheckout);
 $("quantity-minus").addEventListener("click", () => changeQuantity(-1));
 $("quantity-plus").addEventListener("click", () => changeQuantity(1));
@@ -70,7 +73,6 @@ $("reset-filters").addEventListener("click", () => {
   saveCatalogFilters();
   renderCatalog();
 });
-$("history-sort").addEventListener("change", loadHistory);
 $("history-date-filter").addEventListener("change", loadHistory);
 $("favorites-sort").addEventListener("change", loadFavorites);
 $("favorites-stock-filter").addEventListener("change", loadFavorites);
@@ -109,6 +111,11 @@ document.body.addEventListener("click", async (event) => {
     .catch(() => showToast("Не удалось скопировать ссылку", "error"));
 });
 document.querySelectorAll(".tab").forEach((tab) => tab.addEventListener("click", () => showView(tab.dataset.view)));
+document.querySelectorAll("[data-theme-choice]").forEach((button) => button.addEventListener("click", () => {
+  const mode = button.dataset.themeChoice;
+  localStorage.setItem("altera-theme", mode);
+  applyTheme(mode);
+}));
 document.body.addEventListener("click", async (event) => {
   const viewButton = event.target.closest("[data-view]");
   if (viewButton && !viewButton.classList.contains("tab")) showView(viewButton.dataset.view);
@@ -234,6 +241,16 @@ function showView(viewId) {
   if (viewId === "history-view") loadHistory();
   if (viewId === "profile-view") loadProfile();
   if (viewId === "favorites-view") loadFavorites();
+}
+
+function applyTheme(mode) {
+  const theme = mode === "telegram"
+    ? (tg?.colorScheme || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"))
+    : mode;
+  document.documentElement.dataset.theme = theme;
+  document.querySelectorAll("[data-theme-choice]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.themeChoice === mode);
+  });
 }
 
 async function openProductPage(item) {
@@ -904,7 +921,7 @@ async function loadHistory() {
   $("history-status").textContent = "Загрузка...";
   try {
     const days = $("history-date-filter").value;
-    const data = await api(`/api/history?limit=100&sort=${$("history-sort").value}&status=${encodeURIComponent($("history-status-filter").value)}&days=${encodeURIComponent(days)}`);
+    const data = await api(`/api/history?limit=100&sort=newest&status=all&days=${encodeURIComponent(days)}`);
     const bought = [];
     $("history-list").innerHTML = data.history?.length ? data.history.map((entry) => {
       const status = entry.status || "delivered";
